@@ -1,10 +1,185 @@
-.login-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+/* Contenedor principal que ocupa toda la pantalla */
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #fff;
 }
-.card {
-  transition: transform 0.3s ease;
+
+/* Sección de la Imagen (Izquierda) */
+.login-aside {
+  flex: 1;
+  background-image: url('https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  position: relative;
 }
-.card:hover {
+
+.login-aside .overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(26, 42, 64, 0.4); /* Filtro azulado sutil */
+}
+
+/* Sección del Formulario (Derecha) */
+.login-main {
+  flex: 1;
+  background-color: #ffffff;
+  z-index: 10;
+}
+
+/* Tarjeta del login */
+.login-card {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Estilos de Texto GA / SiGA */
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  color: #1a2a40;
+  line-height: 1;
+}
+
+.brand-subtext {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.brand-lawyers {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.app-title {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #1a2a40;
+  margin: 15px 0;
+}
+
+.access-text {
+  font-size: 0.9rem;
+}
+
+/* Inputs personalizados */
+.custom-input .input-group-text {
+  background-color: #fff;
+  border-radius: 8px 0 0 8px;
+  border-right: none;
+  color: #1a2a40;
+}
+
+.custom-input .form-control {
+  border: 1.5px solid #eee;
+  padding: 12px 15px;
+  font-size: 0.95rem;
+  background-color: #fcfcfc;
+}
+.custom-input .form-control:focus {
+  border-color: #1a2a40;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(26, 42, 64, 0.05); /* Glow sutil al enfocar */
+}
+/* Botón con degradado como la imagen */
+.btn-login {
+  background: linear-gradient(to bottom, #2c3e50, #000000);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  filter: brightness(1.2);
+  color: white;
+}
+
+/* Responsividad para móviles */
+@media (max-width: 991px) {
+  .login-main {
+    background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                      url('https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+  }
+}
+
+/* Contenedor blanco del formulario (La tarjeta) */
+.login-form-box {
+  background-color: #ffffff;
+  padding: 45px;
+  width: 90%;
+  max-width: 430px;
+  border-radius: 24px; /* Bordes premium más curvos */
+  border: 1px solid rgba(0, 0, 0, 0.03); /* Borde casi invisible para definir la forma */
+  
+  /* SOMBRA PREMIUM: Combinación de 3 capas para realismo */
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.05),   /* Sombra de contacto */
+    0 20px 48px rgba(26, 42, 64, 0.1), /* Sombra ambiental azulada */
+    0 1px 4px rgba(0, 0, 0, 0.02);     /* Definición de borde inferior */
+    
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Elevación sutil para que parezca flotar */
+.shadow-lg {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Ajustes del Logo y Títulos */
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #1a2a40;
+}
+
+.app-title {
+  font-size: 3.2rem;
+  color: #1a2a40;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* Estilo del botón (Degradado Grimaldo & Aguilar) */
+.btn-login {
+  background: linear-gradient(135deg, #1a2a40 0%, #000000 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(26, 42, 64, 0.3);
+  color: white;
+}
+
+/* Inputs con bordes redondeados */
+.custom-input .input-group-text, 
+.custom-input .form-control {
+  border-color: #e9ecef;
+  background-color: #f8f9fa;
+}
+
+
+/* Efecto sutil al pasar el mouse (opcional) */
+.login-form-box:hover {
   transform: translateY(-5px);
+  box-shadow: 
+    0 20px 35px rgba(0, 0, 0, 0.07), 
+    0 30px 60px rgba(26, 42, 64, 0.15);
 }
+.divider {
+      width: 200px;
+      height: 4px;
+      background-color: #1a2a40;
+      opacity: 0.3;
+    }
