@@ -1,0 +1,44 @@
+
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    background-color: var(--bg-dark-secondary);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    transition: all 0.3s ease;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+}
+
+/* Estado para móviles: oculto a la izquierda */
+@media (max-width: 768px) {
+    .sidebar {
+        left: -280px;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+}
+
+.nav-link {
+    transition: 0.3s;
+    margin-bottom: 5px;
+}
+
+.nav-link.active {
+    background-color: #c3cfe2 !important;
+    color: #1a2a40 !important;
+    font-weight: bold;
+}
+
+
+.nav-link {
+    color: var(--text-muted) !important;
+    border-radius: 8px;
+    margin: 4px 10px;
+}
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border-left: 4px solid var(--accent-gold); /* Detalle de distinción */
+}

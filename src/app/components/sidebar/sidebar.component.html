@@ -1,0 +1,54 @@
+<button class="btn btn-dark d-md-none position-fixed m-3" 
+        style="z-index: 1001; top: 0; left: 0;" 
+        (click)="toggleSidebar()">
+    <i class="bi" [ngClass]="isSidebarOpen ? 'bi-x-lg' : 'bi-list'"></i>
+</button>
+
+<div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white" [class.active]="isSidebarOpen">
+    
+    <div class="text-center mb-4">
+        <i class="bi bi-balance-scale fs-1"></i>
+        <h5 class="mt-2 fw-bold">GESTIÓN LEGAL</h5>
+        <hr>
+    </div>
+    
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white">
+                <i class="bi bi-speedometer2 me-2"></i> Inicio
+            </a>
+        </li>
+        <li>
+            <a routerLink="/expedientes" routerLinkActive="active" class="nav-link text-white">
+                <i class="bi bi-folder-fill me-2"></i> Expedientes
+            </a>
+        </li>
+        <li>
+            <a routerLink="/clientes" routerLinkActive="active" class="nav-link text-white">
+                <i class="bi bi-people-fill me-2"></i> Clientes
+            </a>
+        </li>
+        
+        <li *ngIf="userRole === 'ROLE_IT_MANAGER' || userRole === 'ROLE_ADMIN'">
+            <a routerLink="/usuarios" routerLinkActive="active" class="nav-link text-white">
+                <i class="bi bi-shield-lock-fill me-2"></i> Control Usuarios
+            </a>
+        </li>
+    </ul>
+    
+    <hr>
+
+    <div class="dropdown">
+        <div class="d-flex align-items-center text-white text-decoration-none p-2 bg-dark rounded border border-secondary" 
+             (click)="onLogout()" 
+             style="cursor: pointer;">
+            <i class="bi bi-box-arrow-left me-2"></i>
+            <strong>Cerrar Sesión</strong>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay d-md-none" 
+     *ngIf="isSidebarOpen" 
+     (click)="toggleSidebar()">
+</div>
