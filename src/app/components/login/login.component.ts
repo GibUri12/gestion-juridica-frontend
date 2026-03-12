@@ -23,8 +23,7 @@ export class LoginComponent {
   }
 
   onLogin() {
-    this.loading = true; // Activa el estado de carga
-    
+    this.loading = true;
     this.authService.login(this.loginData).subscribe({
       next: (res) => {
         this.loading = false;
@@ -35,11 +34,14 @@ export class LoginComponent {
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
-          // Lógica de redirección según rol
-          if (res.role === 'ROLE_IT_MANAGER') {
-            this.router.navigate(['/registro-it']);
+          if (res.role === 'ROLE_ADMINISTRADOR') {
+            this.router.navigate(['/admin/dashboard']);
+          } else if (res.role === 'ROLE_ABOGADO') {
+            this.router.navigate(['/abogado/dashboard']);
+          } else if (res.role === 'ROLE_IT_MANAGER') {
+            this.router.navigate(['/it/dashboard']);
           } else {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/login']);
           }
         });
       },

@@ -1,54 +1,111 @@
-<button class="btn btn-dark d-md-none position-fixed m-3" 
-        style="z-index: 1001; top: 0; left: 0;" 
-        (click)="toggleSidebar()">
-    <i class="bi" [ngClass]="isSidebarOpen ? 'bi-x-lg' : 'bi-list'"></i>
+<!-- Botón hamburguesa — solo móvil -->
+<button class="hamburger" (click)="toggleSidebar()" [class.open]="isSidebarOpen" aria-label="Menú">
+  <span></span><span></span><span></span>
 </button>
 
-<div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white" [class.active]="isSidebarOpen">
-    
-    <div class="text-center mb-4">
-        <i class="bi bi-balance-scale fs-1"></i>
-        <h5 class="mt-2 fw-bold">GESTIÓN LEGAL</h5>
-        <hr>
+<!-- Overlay oscuro al abrir en móvil -->
+<div class="sidebar-overlay" [class.visible]="isSidebarOpen" (click)="closeSidebar()"></div>
+
+<nav class="sidebar" [class.open]="isSidebarOpen">
+
+  <!-- Marca -->
+  <div class="sidebar-brand">
+    <div class="brand-monogram">GA</div>
+    <div class="brand-text">
+      <span class="brand-name">Grimaldo & Aguilar</span>
+      <span class="brand-label">Abogados</span>
     </div>
-    
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white">
-                <i class="bi bi-speedometer2 me-2"></i> Inicio
-            </a>
-        </li>
-        <li>
-            <a routerLink="/expedientes" routerLinkActive="active" class="nav-link text-white">
-                <i class="bi bi-folder-fill me-2"></i> Expedientes
-            </a>
-        </li>
-        <li>
-            <a routerLink="/clientes" routerLinkActive="active" class="nav-link text-white">
-                <i class="bi bi-people-fill me-2"></i> Clientes
-            </a>
-        </li>
-        
-        <li *ngIf="userRole === 'ROLE_IT_MANAGER' || userRole === 'ROLE_ADMIN'">
-            <a routerLink="/usuarios" routerLinkActive="active" class="nav-link text-white">
-                <i class="bi bi-shield-lock-fill me-2"></i> Control Usuarios
-            </a>
-        </li>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Perfil -->
+  <div class="sidebar-profile">
+    <div class="profile-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+    <div class="profile-info">
+      <span class="profile-name">{{ userName }}</span>
+      <span class="profile-role">{{ getRoleLabel() }}</span>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Nav: ADMINISTRADOR -->
+  <ng-container *ngIf="userRole === 'ROLE_ADMINISTRADOR'">
+    <p class="nav-section-label">Principal</p>
+    <ul class="nav-list">
+      <li><a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/admin/expedientes" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-folder2-open"></i><span>Expedientes</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/admin/audiencias" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-calendar-event"></i><span>Audiencias</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/admin/clientes" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-people-fill"></i><span>Clientes</span>
+      </a></li>
     </ul>
-    
-    <hr>
+    <p class="nav-section-label">Gestión</p>
+    <ul class="nav-list">
+      <li><a class="nav-link" routerLink="/admin/usuarios" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-person-badge-fill"></i><span>Usuarios</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/admin/catalogos" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-journals"></i><span>Catálogos</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/admin/notificaciones" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-bell-fill"></i><span>Notificaciones</span>
+        <span class="nav-badge" *ngIf="notificacionesCount > 0">{{ notificacionesCount }}</span>
+      </a></li>
+    </ul>
+  </ng-container>
 
-    <div class="dropdown">
-        <div class="d-flex align-items-center text-white text-decoration-none p-2 bg-dark rounded border border-secondary" 
-             (click)="onLogout()" 
-             style="cursor: pointer;">
-            <i class="bi bi-box-arrow-left me-2"></i>
-            <strong>Cerrar Sesión</strong>
-        </div>
-    </div>
-</div>
+  <!-- Nav: ABOGADO -->
+  <ng-container *ngIf="userRole === 'ROLE_ABOGADO'">
+    <p class="nav-section-label">Mi trabajo</p>
+    <ul class="nav-list">
+      <li><a class="nav-link" routerLink="/abogado/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/abogado/expedientes" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-folder2-open"></i><span>Mis Expedientes</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/abogado/audiencias" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-calendar-event"></i><span>Mis Audiencias</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/abogado/notificaciones" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-bell-fill"></i><span>Notificaciones</span>
+        <span class="nav-badge" *ngIf="notificacionesCount > 0">{{ notificacionesCount }}</span>
+      </a></li>
+    </ul>
+  </ng-container>
 
-<div class="sidebar-overlay d-md-none" 
-     *ngIf="isSidebarOpen" 
-     (click)="toggleSidebar()">
-</div>
+  <!-- Nav: IT MANAGER -->
+  <ng-container *ngIf="userRole === 'ROLE_IT_MANAGER'">
+    <p class="nav-section-label">Registro</p>
+    <ul class="nav-list">
+      <li><a class="nav-link" routerLink="/it/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/it/nuevo-caso" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-folder-plus"></i><span>Nuevo Caso</span>
+      </a></li>
+      <li><a class="nav-link" routerLink="/it/clientes" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="bi bi-people-fill"></i><span>Clientes</span>
+      </a></li>
+    </ul>
+  </ng-container>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="sidebar-divider"></div>
+    <button class="logout-btn" (click)="onLogout()">
+      <i class="bi bi-box-arrow-left"></i>
+      <span>Cerrar Sesión</span>
+    </button>
+    <p class="sidebar-version">SiGA v1.0 · {{ currentYear }}</p>
+  </div>
+
+</nav>

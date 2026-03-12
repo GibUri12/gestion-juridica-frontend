@@ -1,3 +1,40 @@
+/* Estilos para el Layout Principal */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+/* Solo en pantallas grandes (Escritorio) empujamos el contenido */
+@media (min-width: 768px) {
+    .content-wrapper {
+        margin-left: 280px; /* Exactamente el ancho de tu sidebar */
+    }
+}
+:root {
+  --bg-dark-primary: #121417;   /* Fondo casi negro */
+  --bg-dark-secondary: #1e2125; /* Fondo de tarjetas y sidebar */
+  --text-main: #e9ecef;         /* Gris muy claro para lectura */
+  --text-muted: #adb5bd;        /* Gris medio para subtítulos */
+  --accent-gold: #c5a059;       /* Un toque dorado para elegancia (opcional) */
+  --border-color: #2d3238;      /* Bordes sutiles */
+}
+
+body {
+  background-color: var(--bg-dark-primary) !important;
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif; /* Tipografía más moderna */
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+
 :root {
       --ink:        #0d1117;
       --ink-soft:   #1c2a3a;

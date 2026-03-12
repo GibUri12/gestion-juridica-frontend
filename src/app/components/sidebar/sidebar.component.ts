@@ -14,6 +14,8 @@ export class SidebarComponent implements OnInit {
   userName: string | null = '';
   userRole: string | null = '';
   isSidebarOpen = false;
+  notificacionesCount = 0;
+  currentYear = new Date().getFullYear();
 
   constructor(private router: Router) {}
 
@@ -22,25 +24,35 @@ export class SidebarComponent implements OnInit {
     this.userRole = localStorage.getItem('role');
   }
 
+  getRoleLabel(): string {
+    switch (this.userRole) {
+      case 'ROLE_ADMINISTRADOR': return 'Administrador';
+      case 'ROLE_ABOGADO':       return 'Abogado';
+      case 'ROLE_IT_MANAGER':    return 'IT Manager';
+      default:                   return '';
+    }
+  }
+
+  toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar()  { this.isSidebarOpen = false; }
+
   onLogout() {
     Swal.fire({
       title: '¿Cerrar sesión?',
-      text: "Tendrás que ingresar tus credenciales nuevamente.",
+      text: 'Tendrás que ingresar tus credenciales nuevamente.',
       icon: 'question',
+      background: '#fff',
+      color: '#2c2c2c',
       showCancelButton: true,
-      confirmButtonColor: '#1a2a40',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#b8924a',
+      cancelButtonColor: '#9e9e9e',
       confirmButtonText: 'Sí, salir',
       cancelButtonText: 'Cancelar'
-    }).then((result) => {
+    }).then(result => {
       if (result.isConfirmed) {
         localStorage.clear();
         this.router.navigate(['/login']);
       }
-    })
-  }
-  
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
+    });
   }
 }

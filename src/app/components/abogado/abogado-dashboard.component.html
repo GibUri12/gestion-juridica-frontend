@@ -3,11 +3,10 @@
 
   <main class="main-content">
 
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
-        <p class="topbar-eyebrow">Panel de Control</p>
-        <h1 class="topbar-title">Dashboard</h1>
+        <p class="topbar-eyebrow">Portal del Abogado</p>
+        <h1 class="topbar-title">Mis Casos</h1>
       </div>
       <div class="topbar-right">
         <div class="topbar-date">
@@ -29,55 +28,55 @@
         <div class="kpi-card accent-blue">
           <div class="kpi-top">
             <div class="kpi-icon-wrap kpi-blue"><i class="bi bi-folder2-open"></i></div>
-            <span class="kpi-trend kpi-trend--up"><i class="bi bi-arrow-up-short"></i> Activos</span>
+            <span class="kpi-trend kpi-trend--up">Asignados</span>
           </div>
           <p class="kpi-value">—</p>
-          <p class="kpi-label">Expedientes Activos</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--blue" style="width:72%"></div></div>
+          <p class="kpi-label">Mis Expedientes</p>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--blue" style="width:65%"></div></div>
         </div>
 
         <div class="kpi-card accent-gold">
           <div class="kpi-top">
             <div class="kpi-icon-wrap kpi-gold"><i class="bi bi-calendar-event"></i></div>
-            <span class="kpi-trend kpi-trend--neutral">Hoy</span>
+            <span class="kpi-trend kpi-trend--neutral">Próximas</span>
           </div>
           <p class="kpi-value">—</p>
-          <p class="kpi-label">Audiencias Programadas</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--gold" style="width:45%"></div></div>
+          <p class="kpi-label">Audiencias Pendientes</p>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--gold" style="width:40%"></div></div>
         </div>
 
         <div class="kpi-card accent-teal">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-teal"><i class="bi bi-people-fill"></i></div>
-            <span class="kpi-trend kpi-trend--up"><i class="bi bi-arrow-up-short"></i> Total</span>
+            <div class="kpi-icon-wrap kpi-teal"><i class="bi bi-check2-circle"></i></div>
+            <span class="kpi-trend kpi-trend--up">Este mes</span>
           </div>
           <p class="kpi-value">—</p>
-          <p class="kpi-label">Clientes Registrados</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--teal" style="width:60%"></div></div>
+          <p class="kpi-label">Audiencias Realizadas</p>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--teal" style="width:55%"></div></div>
         </div>
 
         <div class="kpi-card accent-rose">
           <div class="kpi-top">
             <div class="kpi-icon-wrap kpi-rose"><i class="bi bi-bell-fill"></i></div>
-            <span class="kpi-trend kpi-trend--alert">Pendientes</span>
+            <span class="kpi-trend kpi-trend--alert">Sin leer</span>
           </div>
           <p class="kpi-value">—</p>
           <p class="kpi-label">Notificaciones</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--rose" style="width:30%"></div></div>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--rose" style="width:25%"></div></div>
         </div>
 
       </section>
 
-      <!-- Contenido principal -->
+      <!-- Contenido -->
       <div class="content-grid">
 
         <section class="panel">
           <div class="panel-header">
             <div class="panel-title-wrap">
               <div class="panel-ornament"></div>
-              <h2 class="panel-title">Expedientes Recientes</h2>
+              <h2 class="panel-title">Mis Expedientes Activos</h2>
             </div>
-            <a class="panel-action" routerLink="/admin/expedientes">
+            <a class="panel-action" routerLink="/abogado/expedientes">
               Ver todos <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -89,15 +88,14 @@
                   <th>Cliente</th>
                   <th>Empresa</th>
                   <th>Estado</th>
-                  <th>Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="5">
+                  <td colspan="4">
                     <div class="empty-state">
                       <i class="bi bi-folder2"></i>
-                      <p>No hay expedientes registrados aún</p>
+                      <p>No tienes expedientes asignados aún</p>
                     </div>
                   </td>
                 </tr>
@@ -127,17 +125,14 @@
       <section class="quick-actions">
         <p class="quick-label">Acciones rápidas</p>
         <div class="quick-grid">
-          <a class="quick-btn" routerLink="/admin/expedientes/nuevo">
-            <i class="bi bi-folder-plus"></i><span>Nuevo Expediente</span>
+          <a class="quick-btn" routerLink="/abogado/expedientes">
+            <i class="bi bi-folder2-open"></i><span>Ver Expedientes</span>
           </a>
-          <a class="quick-btn" routerLink="/admin/audiencias/nueva">
-            <i class="bi bi-calendar-plus"></i><span>Nueva Audiencia</span>
+          <a class="quick-btn" routerLink="/abogado/audiencias">
+            <i class="bi bi-calendar-event"></i><span>Ver Audiencias</span>
           </a>
-          <a class="quick-btn" routerLink="/admin/clientes/nuevo">
-            <i class="bi bi-person-plus"></i><span>Nuevo Cliente</span>
-          </a>
-          <a class="quick-btn" routerLink="/admin/usuarios">
-            <i class="bi bi-person-badge"></i><span>Gestionar Usuarios</span>
+          <a class="quick-btn" routerLink="/abogado/notificaciones">
+            <i class="bi bi-bell"></i><span>Notificaciones</span>
           </a>
         </div>
       </section>

@@ -1,37 +1,109 @@
-/* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap');
+/* ════════════════════════════════════════
+   GLOBAL STYLES — SiGA
+   src/styles.css
+   ════════════════════════════════════════ */
 
-/* Estilos para el Layout Principal */
-.app-container {
-    display: flex;
-    min-height: 100vh;
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* ── Reset mínimo — NO usa color ni font-family globales
+      para no pisar los estilos del login ── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-.content-wrapper {
-    flex-grow: 1;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
-}
-
-/* Solo en pantallas grandes (Escritorio) empujamos el contenido */
-@media (min-width: 768px) {
-    .content-wrapper {
-        margin-left: 280px; /* Exactamente el ancho de tu sidebar */
-    }
-}
-:root {
-  --bg-dark-primary: #121417;   /* Fondo casi negro */
-  --bg-dark-secondary: #1e2125; /* Fondo de tarjetas y sidebar */
-  --text-main: #e9ecef;         /* Gris muy claro para lectura */
-  --text-muted: #adb5bd;        /* Gris medio para subtítulos */
-  --accent-gold: #c5a059;       /* Un toque dorado para elegancia (opcional) */
-  --border-color: #2d3238;      /* Bordes sutiles */
+html {
+  height: 100%;
+  width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: var(--bg-dark-primary) !important;
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif; /* Tipografía más moderna */
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  /* SIN color ni font-family aquí — cada componente
+     define los suyos para no interferir con el login */
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Scrollbar suave */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #d8d3cc; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #b8924a; }
+
+/* Router outlet raíz */
+app-root { display: block; height: 100%; }
+
+/* ════════════════════════════════════════
+   VARIABLES GLOBALES
+   (solo afectan a quien las consuma con var())
+   ════════════════════════════════════════ */
+:root {
+  --gold:         #b8924a;
+  --gold-light:   #d4a96a;
+  --gold-muted:   rgba(184, 146, 74, 0.1);
+  --gold-border:  rgba(184, 146, 74, 0.22);
+
+  --bg-page:      #f4f2ee;
+  --bg-card:      #ffffff;
+  --bg-hover:     #f9f7f4;
+
+  --text-primary: #1e1e1e;
+  --text-second:  #5a5550;
+  --text-muted:   #9e9890;
+
+  --border-soft:  #ece8e2;
+  --sidebar-w:    265px;
+
+  --shadow-card:  0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.06);
+  --radius:       10px;
+}
+
+/* ════════════════════════════════════════
+   LAYOUT SHELL — solo aplica dentro del dashboard
+   (el login no usa .app-shell ni app-sidebar)
+   ════════════════════════════════════════ */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-page);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* Host de app-sidebar: reserva espacio en el flexbox */
+.app-shell app-sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+/* Área de contenido principal */
+.app-shell .main-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-page);
+  overflow-x: hidden;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .app-shell app-sidebar {
+    width: 0;
+    min-width: 0;
+  }
+  .app-shell .main-content {
+    width: 100%;
+  }
+}
