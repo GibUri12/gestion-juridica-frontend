@@ -1,60 +1,66 @@
-<div class="login-wrapper">
-  <div class="login-aside d-none d-lg-block">
-    <div class="overlay"></div>
-  </div>
+<div class="bg-canvas"></div>
 
-  <div class="login-main d-flex align-items-center justify-content-center p-3">
-    
-    <div class="login-form-box">
-      
-      <div class="text-center mb-4">
-        <h1 class="logo-text mb-0">GA</h1>
-        <p class="brand-subtext mb-0">Grimaldo & Aguilar</p>
-        <p class="brand-lawyers small text-muted">ABOGADOS</p>
-        
-        <div class="divider mx-auto my-3"></div>
-        <!--
-        <h2 class="app-title">SiGA</h2>
-        <p class="access-text text-muted">Acceso Seguro para Profesionales del Derecho</p>
-      -->
+<div class="login-wrapper">
+  <aside class="login-aside">
+    <div class="aside-photo"></div>
+    <div class="aside-overlay"></div>
+    <div class="aside-content">
+      <p class="aside-tag">SiGA</p>
+      <h2 class="aside-headline">Defensa y protección<em> de los trabajadores.</em></h2>
+      <div class="aside-rule"></div>
+      <p class="aside-caption">Grimaldo & Aguilar</p>
+    </div>
+  </aside>
+
+  <main class="login-main">
+    <div class="login-card">
+      <div class="brand-block">
+        <div class="brand-monogram">GA</div>
+        <p class="brand-name">Grimaldo & Aguilar</p>
+        <p class="brand-label">Abogados</p>
       </div>
 
-      <form (ngSubmit)="onLogin()">
-        
-        <div class="mb-3">
-          <label class="form-label small fw-bold text-secondary">Nombre de Usuario o Correo</label>
-          <div class="input-group custom-input">
-            <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input type="text" 
-                   name="username" 
-                   [(ngModel)]="loginData.username" 
-                   class="form-control" 
-                   placeholder="Ej: gibran.uriel" 
-                   required>
-          </div>
+      <div class="ornament">
+        <div class="ornament-line"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-diamond" style="opacity:0.35;transform:rotate(45deg) scale(0.6)"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-line"></div>
+      </div>
+
+      <form (ngSubmit)="onLogin()" class="form-block">
+        <label class="field-label">Usuario o Correo</label>
+        <div class="field-wrap">
+          <input class="field-input" 
+                 type="text" 
+                 name="username" 
+                 [(ngModel)]="loginData.username" 
+                 placeholder="gibran.uriel" 
+                 required />
+          <i class="field-icon bi bi-person"></i>
         </div>
 
-        <div class="mb-4">
-          <label class="form-label small fw-bold text-secondary">Contraseña</label>
-          <div class="input-group custom-input">
-            <span class="input-group-text"><i class="bi bi-lock"></i></span>
-            <input [type]="showPassword ? 'text' : 'password'" 
-                   name="password" 
-                   [(ngModel)]="loginData.password" 
-                   class="form-control border-end-0" 
-                   placeholder="••••••••" 
-                   required>
-            <span class="input-group-text bg-white border-start-0" 
-                  (click)="togglePassword()" 
-                  style="cursor: pointer;">
-              <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye-fill text-muted'"></i>
-            </span>
-          </div>
+        <label class="field-label">Contraseña</label>
+        <div class="field-wrap">
+          <input class="field-input has-eye" 
+                 [type]="showPassword ? 'text' : 'password'" 
+                 name="password" 
+                 [(ngModel)]="loginData.password" 
+                 placeholder="••••••••" 
+                 required />
+          <i class="field-icon bi bi-lock"></i>
+          <button class="field-eye" type="button" (click)="togglePassword()" tabindex="-1">
+            <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
         </div>
 
-        <button type="submit" class="btn btn-login w-100 fw-bold py-2">
-          INICIAR SESIÓN
+        <button class="btn-submit" type="submit" [disabled]="loading">
+          <span *ngIf="!loading">Iniciar Sesión</span>
+          <span *ngIf="loading"><i class="bi bi-arrow-repeat spin"></i></span>
         </button>
-
       </form>
-    </div> </div> </div>
+
+      <p class="form-footer">Acceso restringido · Personal autorizado</p>
+    </div>
+  </main>
+</div>

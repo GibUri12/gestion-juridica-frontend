@@ -1,0 +1,470 @@
+:root {
+      --ink:        #0d1117;
+      --ink-soft:   #1c2a3a;
+      --gold:       #b8924a;
+      --gold-light: #d4a96a;
+      --gold-muted: rgba(184,146,74,0.18);
+      --cream:      #f7f4ef;
+      --cream-dark: #ede9e1;
+      --white:      #ffffff;
+      --text-muted: #7a7060;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Modifica un poco tu .login-wrapper para asegurar que no se pegue a los bordes */
+.login-wrapper {
+  position: relative; 
+  z-index: 1;
+  display: flex;
+  width: 960px;
+  max-width: 90vw; /* Ajustado para que respire en tablets */
+  min-height: 580px;
+  /* ... el resto de tus estilos ... */
+}
+
+    html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Vital para el centrado */
+  width: 100%;
+  background-color: #0d1117; 
+}
+
+body {
+  display: flex;
+  align-items: center;    /* Centrado vertical */
+  justify-content: center; /* Centrado horizontal */
+  overflow: hidden;
+}
+
+
+/* IMPORTANTE: Angular envuelve tu componente en una etiqueta (ej. <app-login>) 
+   necesitamos que esa etiqueta también sea un contenedor flexible */
+app-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+    /* ── Fondo animado de partículas doradas ── */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 50%, #1c2a3a 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 50%, #0d1117 0%, transparent 70%),
+        linear-gradient(135deg, #0d1117 0%, #1c2a3a 50%, #0d1117 100%);
+    }
+
+    /* Líneas decorativas art-deco de fondo */
+    .bg-canvas::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 79px,
+          rgba(184,146,74,0.04) 79px,
+          rgba(184,146,74,0.04) 80px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 79px,
+          rgba(184,146,74,0.04) 79px,
+          rgba(184,146,74,0.04) 80px
+        );
+    }
+
+    /* Glow lateral derecho */
+    .bg-canvas::after {
+      content: '';
+      position: absolute;
+      right: -100px; top: 50%;
+      transform: translateY(-50%);
+      width: 500px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(184,146,74,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Layout principal ── */
+    .login-wrapper {
+      position: relative; z-index: 1;
+      display: flex;
+      width: 960px;
+      max-width: 96vw;
+      min-height: 580px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(184,146,74,0.2),
+        0 40px 80px rgba(0,0,0,0.6),
+        0 8px 24px rgba(0,0,0,0.4);
+      animation: cardReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Panel izquierdo: editorial fotográfico ── */
+    .login-aside {
+      flex: 1.1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aside-photo {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center 30%;
+      transform: scale(1.04);
+      transition: transform 8s ease;
+    }
+    .login-wrapper:hover .aside-photo { transform: scale(1); }
+
+    /* Gradiente que conecta la foto con el panel derecho sin corte */
+    .aside-overlay {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to right,
+          rgba(13,17,23,0.15) 0%,
+          rgba(13,17,23,0.45) 60%,
+          rgba(13,17,23,0.85) 100%
+        ),
+        linear-gradient(to bottom,
+          rgba(13,17,23,0.3) 0%,
+          transparent 40%,
+          rgba(13,17,23,0.5) 100%
+        );
+    }
+
+    .aside-content {
+      position: relative; z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px 44px;
+    }
+
+    .aside-tag {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.5s ease forwards;
+    }
+
+    .aside-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.65s ease forwards;
+    }
+    .aside-headline em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .aside-rule {
+      width: 48px; height: 1px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.75s ease forwards;
+    }
+
+    .aside-caption {
+      font-size: 0.72rem;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.5);
+      opacity: 0;
+      animation: fadeUp 0.6s 0.85s ease forwards;
+    }
+
+    /* ── Panel derecho: formulario ── */
+    .login-main {
+      flex: 1;
+      background: linear-gradient(160deg, #111820 0%, #0d1117 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 52px 48px;
+      position: relative;
+      border-left: 1px solid rgba(184,146,74,0.12);
+    }
+
+    /* Detalle de esquina art-deco */
+    .login-main::before {
+      content: '';
+      position: absolute;
+      top: 28px; right: 28px;
+      width: 48px; height: 48px;
+      border-top: 1px solid rgba(184,146,74,0.35);
+      border-right: 1px solid rgba(184,146,74,0.35);
+    }
+    .login-main::after {
+      content: '';
+      position: absolute;
+      bottom: 28px; left: 28px;
+      width: 48px; height: 48px;
+      border-bottom: 1px solid rgba(184,146,74,0.35);
+      border-left: 1px solid rgba(184,146,74,0.35);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 340px;
+    }
+
+    /* ── Marca / Logo ── */
+    .brand-block {
+      text-align: center;
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.3s ease forwards;
+    }
+
+    .brand-monogram {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.6rem;
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: 6px;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* subrayado dorado del monograma */
+    .brand-monogram::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      margin-top: 6px;
+    }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.98rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+
+    .brand-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 4px;
+    }
+
+    /* ── Separador ornamental ── */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 auto 28px;
+      width: fit-content;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.55s ease forwards;
+    }
+    .ornament-line {
+      width: 36px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(184,146,74,0.5));
+    }
+    .ornament-line:last-child {
+      background: linear-gradient(to left, transparent, rgba(184,146,74,0.5));
+    }
+    .ornament-diamond {
+      width: 5px; height: 5px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      opacity: 0.7;
+    }
+
+    /* ── Campos del formulario ── */
+    .form-block {
+      opacity: 0;
+      animation: fadeUp 0.6s 0.5s ease forwards;
+    }
+
+    .field-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .field-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(184,146,74,0.5);
+      font-size: 0.85rem;
+      pointer-events: none;
+      transition: color 0.25s;
+    }
+
+    .field-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(184,146,74,0.2);
+      border-radius: 2px;
+      padding: 12px 14px 12px 38px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: 0.5px;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+
+    .field-input::placeholder {
+      color: rgba(255,255,255,0.2);
+      font-weight: 300;
+    }
+
+    .field-input:focus {
+      border-color: rgba(184,146,74,0.6);
+      background: rgba(184,146,74,0.04);
+      box-shadow: 0 0 0 3px rgba(184,146,74,0.08);
+    }
+    .field-input:focus + .field-icon,
+    .field-wrap:focus-within .field-icon {
+      color: var(--gold);
+    }
+    
+
+    /* Ícono ojo (contraseña) */
+    .field-eye {
+      position: absolute;
+      right: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(184,146,74,0.35);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      background: none; border: none; padding: 0;
+    }
+    .field-eye:hover { color: var(--gold); }
+    /* padding extra a la derecha en el input de password */
+    .field-input.has-eye { padding-right: 38px; }
+
+    /* ── Botón principal ── */
+    .btn-submit {
+      width: 100%;
+      margin-top: 8px;
+      padding: 13px;
+      background: transparent;
+      border: 1px solid rgba(184,146,74,0.5);
+      border-radius: 2px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.35s, border-color 0.35s;
+    }
+
+    /* Fill dorado al hacer hover */
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--gold) 0%, #8a6530 100%);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-submit:hover::before { transform: scaleX(1); }
+    .btn-submit:hover { color: var(--ink); border-color: var(--gold); }
+
+    .btn-submit span { position: relative; z-index: 1; }
+
+    /* ── Footer del formulario ── */
+    .form-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.62rem;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.2);
+      opacity: 0;
+      animation: fadeUp 0.5s 0.9s ease forwards;
+    }
+
+    /* ── Animación compartida ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .login-aside { display: none; }
+      .login-main {
+        padding: 44px 32px;
+        background:
+          radial-gradient(ellipse 120% 60% at 50% 0%, rgba(184,146,74,0.07) 0%, transparent 70%),
+          linear-gradient(160deg, #111820 0%, #0d1117 100%);
+      }
+    }
+
+    
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spin { 
+  display: inline-block;
+  animation: spin 0.8s linear infinite; 
+}
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

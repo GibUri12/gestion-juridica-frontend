@@ -8,14 +8,14 @@ import Swal from 'sweetalert2'; // <--- Importar SweetAlert
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
   imports: [FormsModule, CommonModule],
   standalone: true
 })
 export class LoginComponent {
   loginData = { username: '', password: '' };
   showPassword = false; // <--- Variable para ver contraseña
-
+  loading = false;
   constructor(private authService: AuthService, private router: Router) {}
 
   togglePassword() {
@@ -23,8 +23,11 @@ export class LoginComponent {
   }
 
   onLogin() {
+    this.loading = true; // Activa el estado de carga
+    
     this.authService.login(this.loginData).subscribe({
       next: (res) => {
+        this.loading = false;
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',
@@ -32,6 +35,7 @@ export class LoginComponent {
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
+          // Lógica de redirección según rol
           if (res.role === 'ROLE_IT_MANAGER') {
             this.router.navigate(['/registro-it']);
           } else {
@@ -40,6 +44,7 @@ export class LoginComponent {
         });
       },
       error: (err) => {
+        this.loading = false;
         Swal.fire({
           icon: 'error',
           title: 'Error de acceso',
