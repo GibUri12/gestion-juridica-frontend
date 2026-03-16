@@ -1,0 +1,64 @@
+/* IT Dashboard — Panel de acciones */
+.accion-panel { margin-top: 0; }
+
+.acciones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 20px 24px 24px;
+}
+
+.accion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.accion-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.accion-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--gold-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  color: var(--gold);
+}
+.accion-icon--gold {
+  background: rgba(184,146,74,0.15);
+  color: var(--gold-light);
+}
+
+.accion-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+.accion-desc {
+  font-size: 0.75rem;
+  color: var(--text-second);
+  margin: 0;
+  line-height: 1.5;
+}
+.accion-link {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 600px) {
+  .acciones-grid { grid-template-columns: 1fr; }
+}

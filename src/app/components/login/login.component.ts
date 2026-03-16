@@ -27,6 +27,10 @@ export class LoginComponent {
     this.authService.login(this.loginData).subscribe({
       next: (res) => {
         this.loading = false;
+        localStorage.setItem('token',    res.token);
+        localStorage.setItem('username', res.username);
+        localStorage.setItem('role',     res.role);
+        localStorage.setItem('userId',   res.id.toString());
         Swal.fire({
           icon: 'success',
           title: '¡Bienvenido!',

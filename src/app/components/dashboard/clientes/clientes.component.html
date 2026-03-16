@@ -1,0 +1,233 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Gestión</p>
+        <h1 class="topbar-title">Clientes</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username hide-mobile">{{ userName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Barra de acciones -->
+      <div class="list-toolbar">
+        <div class="search-wrap">
+          <i class="bi bi-search search-icon"></i>
+          <input
+            class="search-input"
+            type="text"
+            placeholder="Buscar por nombre, teléfono o email..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+          <button class="search-clear" *ngIf="searchTerm" (click)="clearSearch()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="toolbar-right">
+          <!-- Toggle activos/inactivos -->
+          <label class="toggle-wrap">
+            <span class="toggle-label">Solo activos</span>
+            <div class="toggle-switch" [class.on]="soloActivos" (click)="toggleFiltro()">
+              <div class="toggle-knob"></div>
+            </div>
+          </label>
+
+          <button class="btn-primary" (click)="abrirModal()">
+            <i class="bi bi-person-plus"></i>
+            <span>Nuevo Cliente</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <section class="panel">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre Completo</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- Loading -->
+              <tr *ngIf="loading">
+                <td colspan="6">
+                  <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p>Cargando clientes...</p>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Sin resultados -->
+              <tr *ngIf="!loading && clientesFiltrados.length === 0">
+                <td colspan="6">
+                  <div class="empty-state">
+                    <i class="bi bi-people"></i>
+                    <p>{{ searchTerm ? 'Sin resultados para "' + searchTerm + '"' : 'No hay clientes registrados aún' }}</p>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Filas -->
+              <tr
+                *ngFor="let c of clientesFiltrados; let i = index"
+                [class.row-inactive]="!c.activo"
+              >
+                <td class="td-id">{{ c.id }}</td>
+                <td class="td-nombre">{{ c.nombreCompleto }}</td>
+                <td class="td-muted">{{ c.telefono || '—' }}</td>
+                <td class="td-muted">{{ c.email || '—' }}</td>
+                <td>
+                  <span class="badge" [class.badge--active]="c.activo" [class.badge--inactive]="!c.activo">
+                    {{ c.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="td-actions">
+                  <button class="action-btn action-edit" title="Editar" (click)="abrirModal(c)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="action-btn action-delete"
+                    [title]="c.activo ? 'Desactivar' : 'Ya inactivo'"
+                    [disabled]="!c.activo"
+                    (click)="confirmarDesactivar(c)"
+                  >
+                    <i class="bi bi-person-dash"></i>
+                  </button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Contador -->
+        <div class="table-footer" *ngIf="!loading && clientesFiltrados.length > 0">
+          <span>{{ clientesFiltrados.length }} cliente{{ clientesFiltrados.length !== 1 ? 's' : '' }}
+            {{ searchTerm ? 'encontrados' : (soloActivos ? 'activos' : 'en total') }}
+          </span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL CREAR / EDITAR CLIENTE
+     ══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modalVisible" (click)="cerrarModal()"></div>
+
+<div class="modal" *ngIf="modalVisible" role="dialog" aria-modal="true">
+
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <i class="bi bi-person-vcard"></i>
+      {{ modoEdicion ? 'Editar Cliente' : 'Nuevo Cliente' }}
+    </h2>
+    <button class="modal-close" (click)="cerrarModal()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- Nombre -->
+    <div class="field-group">
+      <label class="field-label">
+        Nombre Completo <span class="required">*</span>
+      </label>
+      <input
+        class="field-input"
+        [class.field-error]="errors['nombreCompleto']"
+        type="text"
+        placeholder="APELLIDOS NOMBRE(S) en mayúsculas"
+        [(ngModel)]="form.nombreCompleto"
+        (input)="form.nombreCompleto = form.nombreCompleto.toUpperCase()"
+        maxlength="200"
+      />
+      <span class="error-msg" *ngIf="errors['nombreCompleto']">{{ errors['nombreCompleto'] }}</span>
+      <span class="field-hint">Formato: APELLIDO1 APELLIDO2 NOMBRE(S)</span>
+    </div>
+
+    <!-- Teléfono + Email en fila -->
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Teléfono</label>
+        <input
+          class="field-input"
+          [class.field-error]="errors['telefono']"
+          type="tel"
+          placeholder="55 1234 5678"
+          [(ngModel)]="form.telefono"
+          maxlength="20"
+        />
+        <span class="error-msg" *ngIf="errors['telefono']">{{ errors['telefono'] }}</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <input
+          class="field-input"
+          [class.field-error]="errors['email']"
+          type="email"
+          placeholder="correo@ejemplo.com"
+          [(ngModel)]="form.email"
+        />
+        <span class="error-msg" *ngIf="errors['email']">{{ errors['email'] }}</span>
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div class="field-group">
+      <label class="field-label">Notas</label>
+      <textarea
+        class="field-input field-textarea"
+        placeholder="Observaciones adicionales..."
+        [(ngModel)]="form.notas"
+        rows="3"
+        maxlength="500"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-secondary" (click)="cerrarModal()" [disabled]="guardando">
+      Cancelar
+    </button>
+    <button class="btn-primary" (click)="guardar()" [disabled]="guardando">
+      <span *ngIf="!guardando">
+        <i class="bi bi-check2"></i>
+        {{ modoEdicion ? 'Guardar cambios' : 'Crear cliente' }}
+      </span>
+      <span *ngIf="guardando">
+        <div class="spinner spinner-sm"></div>
+        Guardando...
+      </span>
+    </button>
+  </div>
+
+</div>

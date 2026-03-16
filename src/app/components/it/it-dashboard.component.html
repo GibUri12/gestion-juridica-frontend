@@ -6,7 +6,7 @@
     <header class="topbar">
       <div class="topbar-left">
         <p class="topbar-eyebrow">Portal IT</p>
-        <h1 class="topbar-title">Registro de Casos</h1>
+        <h1 class="topbar-title">Bienvenido, {{ userName }}</h1>
       </div>
       <div class="topbar-right">
         <div class="topbar-date">
@@ -15,7 +15,6 @@
         </div>
         <div class="topbar-user">
           <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
-          <span class="topbar-username">{{ userName }}</span>
         </div>
       </div>
     </header>
@@ -24,107 +23,52 @@
 
       <!-- KPI Cards -->
       <section class="kpi-grid">
-
         <div class="kpi-card accent-blue">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-blue"><i class="bi bi-folder-plus"></i></div>
-            <span class="kpi-trend kpi-trend--up">Este mes</span>
+            <div class="kpi-icon-wrap kpi-blue"><i class="bi bi-people-fill"></i></div>
+            <span class="kpi-trend kpi-trend--neutral">Total</span>
           </div>
-          <p class="kpi-value">—</p>
-          <p class="kpi-label">Casos Registrados</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--blue" style="width:50%"></div></div>
+          <p class="kpi-value">{{ totalClientes ?? '—' }}</p>
+          <p class="kpi-label">Clientes en Sistema</p>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--blue" style="width:70%"></div></div>
         </div>
 
         <div class="kpi-card accent-gold">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-gold"><i class="bi bi-people-fill"></i></div>
-            <span class="kpi-trend kpi-trend--neutral">Total</span>
+            <div class="kpi-icon-wrap kpi-gold"><i class="bi bi-person-plus-fill"></i></div>
+            <span class="kpi-trend kpi-trend--up">Tus registros</span>
           </div>
-          <p class="kpi-value">—</p>
-          <p class="kpi-label">Clientes en Sistema</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--gold" style="width:70%"></div></div>
-        </div>
-
-        <div class="kpi-card accent-teal">
-          <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-teal"><i class="bi bi-building"></i></div>
-            <span class="kpi-trend kpi-trend--neutral">Total</span>
-          </div>
-          <p class="kpi-value">—</p>
-          <p class="kpi-label">Empresas Registradas</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--teal" style="width:40%"></div></div>
-        </div>
-
-        <div class="kpi-card accent-rose">
-          <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-rose"><i class="bi bi-exclamation-circle"></i></div>
-            <span class="kpi-trend kpi-trend--alert">Revisar</span>
-          </div>
-          <p class="kpi-value">—</p>
-          <p class="kpi-label">Datos Incompletos</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--rose" style="width:15%"></div></div>
-        </div>
-
-      </section>
-
-      <!-- Guía de registro -->
-      <section class="registro-section">
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title-wrap">
-              <div class="panel-ornament"></div>
-              <h2 class="panel-title">Guía de Registro Rápido</h2>
-            </div>
-          </div>
-
-          <div class="registro-steps">
-
-            <div class="step">
-              <div class="step-number">01</div>
-              <div class="step-content">
-                <p class="step-title">Buscar o crear cliente</p>
-                <p class="step-desc">Verifica si el cliente ya existe antes de registrar uno nuevo para evitar duplicados.</p>
-              </div>
-              <a class="step-btn" routerLink="/it/clientes">
-                <i class="bi bi-people"></i> Clientes
-              </a>
-            </div>
-
-            <div class="step">
-              <div class="step-number">02</div>
-              <div class="step-content">
-                <p class="step-title">Registrar empresa demandada</p>
-                <p class="step-desc">Ingresa la razón social completa de la empresa. Se vinculará automáticamente al expediente.</p>
-              </div>
-              <a class="step-btn" routerLink="/it/nuevo-caso">
-                <i class="bi bi-building"></i> Empresas
-              </a>
-            </div>
-
-            <div class="step">
-              <div class="step-number">03</div>
-              <div class="step-content">
-                <p class="step-title">Crear el expediente</p>
-                <p class="step-desc">Asigna el número de expediente, vincula el cliente con la empresa y selecciona la junta.</p>
-              </div>
-              <a class="step-btn" routerLink="/it/nuevo-caso">
-                <i class="bi bi-folder-plus"></i> Nuevo caso
-              </a>
-            </div>
-
-          </div>
+          <p class="kpi-value">{{ clientesPropios ?? '—' }}</p>
+          <p class="kpi-label">Clientes Registrados por Ti</p>
+          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--gold" style="width:50%"></div></div>
         </div>
       </section>
 
-      <!-- Accesos rápidos -->
-      <section class="quick-actions">
-        <p class="quick-label">Acceso directo</p>
-        <div class="quick-grid">
-          <a class="quick-btn" routerLink="/it/nuevo-caso">
-            <i class="bi bi-folder-plus"></i><span>Nuevo Caso</span>
+      <!-- Acción principal -->
+      <section class="panel accion-panel">
+        <div class="panel-header">
+          <div class="panel-title-wrap">
+            <div class="panel-ornament"></div>
+            <h2 class="panel-title">¿Qué deseas hacer?</h2>
+          </div>
+        </div>
+        <div class="acciones-grid">
+          <a class="accion-card" routerLink="/it/clientes">
+            <div class="accion-icon">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <p class="accion-title">Registrar Nuevo Cliente</p>
+            <p class="accion-desc">Agrega un nuevo cliente al sistema para vincularlo a un expediente.</p>
+            <span class="accion-link">Ir a Clientes <i class="bi bi-arrow-right"></i></span>
           </a>
-          <a class="quick-btn" routerLink="/it/clientes">
-            <i class="bi bi-person-plus"></i><span>Nuevo Cliente</span>
+
+          <a class="accion-card" routerLink="/it/clientes">
+            <div class="accion-icon accion-icon--gold">
+              <i class="bi bi-search"></i>
+            </div>
+            <p class="accion-title">Buscar Cliente Existente</p>
+            <p class="accion-desc">Verifica si el cliente ya está registrado antes de crear uno nuevo.</p>
+            <span class="accion-link">Buscar <i class="bi bi-arrow-right"></i></span>
           </a>
         </div>
       </section>

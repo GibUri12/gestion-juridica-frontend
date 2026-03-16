@@ -13,7 +13,13 @@ export const routes: Routes = [
     canActivate: [roleGuard(['ROLE_ADMINISTRADOR'])],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'clientes',
+        loadComponent: () =>
+          import('./components/dashboard/clientes/clientes.component')
+            .then(m => m.ClientesComponent)
+      }
     ]
   },
 
@@ -42,6 +48,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/it/it-dashboard.component')
             .then(m => m.ItDashboardComponent)
+      },
+      {
+        path: 'clientes',
+        loadComponent: () =>
+          import('./components/it/clientes-it.component')
+            .then(m => m.ClientesItComponent)
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

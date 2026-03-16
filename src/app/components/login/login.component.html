@@ -6,7 +6,7 @@
     <div class="aside-overlay"></div>
     <div class="aside-content">
       <p class="aside-tag">SiGA</p>
-      <h2 class="aside-headline">Defensa y protección<em> de los trabajadores.</em></h2>
+      <h2 class="aside-headline" style="color: white;">Defensa y protección<em> de los trabajadores.</em></h2>
       <div class="aside-rule"></div>
       <p class="aside-caption">Grimaldo & Aguilar</p>
     </div>
@@ -15,7 +15,7 @@
   <main class="login-main">
     <div class="login-card">
       <div class="brand-block">
-        <div class="brand-monogram">GA</div>
+        <div class="brand-monogram" style="color: #5a5550;">GA</div>
         <p class="brand-name">Grimaldo & Aguilar</p>
         <p class="brand-label">Abogados</p>
       </div>
@@ -31,7 +31,7 @@
       <form (ngSubmit)="onLogin()" class="form-block">
         <label class="field-label">Usuario o Correo</label>
         <div class="field-wrap">
-          <input class="field-input" 
+          <input class="field-input" style="color:#9e9890;" 
                  type="text" 
                  name="username" 
                  [(ngModel)]="loginData.username" 
@@ -42,7 +42,7 @@
 
         <label class="field-label">Contraseña</label>
         <div class="field-wrap">
-          <input class="field-input has-eye" 
+          <input class="field-input has-eye" style="color:#9e9890;"
                  [type]="showPassword ? 'text' : 'password'" 
                  name="password" 
                  [(ngModel)]="loginData.password" 
