@@ -1,0 +1,180 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Área Legal</p>
+        <h1 class="topbar-title">Expedientes</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="list-toolbar">
+        <div class="search-wrap">
+          <i class="bi bi-search search-icon"></i>
+          <input
+            class="search-input"
+            type="text"
+            placeholder="Buscar por número o cliente..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+          <button class="search-clear" *ngIf="searchTerm" (click)="clearSearch()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        
+        <button class="btn-primary" (click)="abrirModalNuevo()">
+          <i class="bi bi-folder-plus"></i>
+          <span>Nuevo Expediente</span>
+        </button>
+      </div>
+
+      <section class="panel">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No. Expediente</th>
+                <th>Cliente / Empresa</th>
+                <th>Estado</th>
+                <th>Próxima Audiencia</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="loading">
+                <td colspan="5">
+                  <div class="empty-state"><div class="spinner"></div><p>Cargando...</p></div>
+                </td>
+              </tr>
+
+              <tr *ngFor="let exp of expedientesFiltrados">
+                <td class="td-nombre">
+                  <strong>{{ exp.numeroExpediente }}</strong>
+                  <div class="td-muted small">{{ exp.sufijoExpediente }}</div>
+                </td>
+                <td>
+                  <div class="td-nombre">{{ exp.cliente.nombreCompleto }}</div>
+                  <div class="td-muted small">vs {{ exp.empresa.nombreCompleto }}</div>
+                </td>
+                <td>
+                  <span class="badge-owner" [ngClass]="{'badge-owner--mine': exp.estado === 'ACTIVO'}">
+                    {{ exp.estado }}
+                  </span>
+                </td>
+                <td class="td-muted">{{ exp.proximaAudiencia || 'Pendiente' }}</td>
+                <td class="td-actions">
+                  <button class="action-btn action-edit" (click)="abrirModalEditar(exp)">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" *ngIf="modalVisible" (click)="cerrarModal()"></div>
+
+<div class="modal" *ngIf="modalVisible">
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <i class="bi" [ngClass]="modoEdicion ? 'bi-pencil-square' : 'bi-folder-plus'"></i>
+      {{ modoEdicion ? 'Editar Expediente' : 'Nuevo Expediente' }}
+    </h2>
+    <button class="modal-close" (click)="cerrarModal()"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <div class="modal-body" [formGroup]="completarForm">
+    
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">No. Expediente <span class="required">*</span></label>
+        <input class="field-input" type="text" formControlName="numeroExpediente" placeholder="Ej. 123/2026" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Sufijo</label>
+        <input class="field-input" type="text" formControlName="sufijoExpediente" placeholder="Opcional" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">CLIENTE (Actor) <span class="required">*</span></label>
+      <div class="search-wrap" style="position: relative;">
+        <input
+          class="field-input"
+          type="text"
+          placeholder="Buscar cliente registrado..."
+          formControlName="nombreCliente"
+          (input)="onClienteInput($event)"
+          autocomplete="off"
+        />
+        <ul class="autocomplete-results" *ngIf="mostrarSugerenciasCliente && clientesSugeridas.length > 0">
+          <li *ngFor="let cli of clientesSugeridas" (click)="seleccionarCliente(cli)">
+            {{ cli.nombreCompleto }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">PARTES (Empresa/Demandado) <span class="required">*</span></label>
+      <input
+        class="field-input"
+        type="text"
+        placeholder="Escriba el nombre de la empresa o persona..."
+        formControlName="nombreEmpresa"
+      />
+      <span class="field-hint">Si no existe, el sistema la registrará automáticamente.</span>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Litis (Concepto de demanda) <span class="required">*</span></label>
+      <textarea class="field-input field-textarea" formControlName="litis" rows="2"></textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Próxima Audiencia</label>
+        <input type="date" class="field-input" formControlName="proximaAudiencia" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Recordatorio (Mín. 45 días) <span class="required">*</span></label>
+        <input type="date" class="field-input" formControlName="fechaRecordatorio" [min]="minDate" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Amparo / Recursos</label>
+        <input type="text" class="field-input" formControlName="amparo" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Anotaciones Generales</label>
+      <textarea class="field-input field-textarea" formControlName="anotacion" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-secondary" (click)="cerrarModal()" [disabled]="guardando">Cancelar</button>
+    <button class="btn-primary" (click)="guardar()" [disabled]="guardando">
+      <i class="bi bi-check2"></i> {{ modoEdicion ? 'Actualizar' : 'Crear' }} Expediente
+    </button>
+  </div>
+</div>

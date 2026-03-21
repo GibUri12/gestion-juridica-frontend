@@ -3,6 +3,8 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { roleGuard } from './guards/auth.guard';
 
+
+
 export const routes: Routes = [
   { path: '',      redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
@@ -19,6 +21,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/dashboard/clientes/clientes.component')
             .then(m => m.ClientesComponent)
+      },
+      {path:'expedientes',
+      loadComponent: () => 
+        import ('./components/abogado/expedientes/expedientes-lista.component')
+        .then(m => m.ExpedientesListaComponent)
       }
     ]
   },
