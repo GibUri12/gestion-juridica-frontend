@@ -12,5 +12,15 @@ export interface Expediente {
   estado: 'ACTIVO' | 'EN_PROCESO' | 'FINALIZADO';
   fechaRecordatorio?: string;
   proximaAudiencia?: string;
+
+  tieneAmparo: boolean; // El valor del Switch
+  amparoNumero?: string;
+  amparoFechaAudiencia?: string;
+  amparoTribunalId?: number;
+  amparoTribunal?: { 
+    id: number; 
+    nombreCompleto: string;
+    clave: string;
+  };
   
 }

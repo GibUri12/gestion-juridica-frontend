@@ -27,8 +27,11 @@ export class ExpedientesListaComponent implements OnInit {
   expedientes: Expediente[] = [];
   expedientesFiltrados: Expediente[] = [];
   expedienteSeleccionado?: Expediente;
+  juntasSugeridas: any[] = [];
+  mostrarSugerenciasJunta: boolean = false;
   
   clientesSugeridas: any[] = [];
+  tribunalesSugeridos: any[] = [];
   mostrarSugerenciasCliente: boolean = false;
 
   // Formulario
@@ -45,6 +48,7 @@ export class ExpedientesListaComponent implements OnInit {
     this.minDate = hoy.toISOString().split('T')[0];
 
     this.completarForm = this.fb.group({
+      nombreJunta: ['', Validators.required], // Opcional
       numeroExpediente: ['', Validators.required],
       sufijoExpediente: [''], // Opcional
       clienteId: [null, Validators.required],
@@ -54,12 +58,19 @@ export class ExpedientesListaComponent implements OnInit {
       amparo: [''], // Opcional
       anotacion: [''], // Opcional
       proximaAudiencia: [''], // Opcional
-      fechaRecordatorio: ['', Validators.required]
+      fechaRecordatorio: ['', Validators.required],
+      tieneAmparo: [false],
+      amparoNumero: [''],
+      amparoFechaAudiencia: [null],
+      amparoTribunalId: [null],
+      nombreTribunal: ['']
     });
   }
 
   ngOnInit() {
+    
     this.cargarExpedientes();
+    
   }
 
   cargarExpedientes() {
@@ -75,6 +86,22 @@ export class ExpedientesListaComponent implements OnInit {
         Swal.fire('Error', 'No se pudieron cargar los expedientes', 'error');
       }
     });
+  }
+    onTribunalInput(event: any) {
+    const term = event.target.value;
+    if (term.length > 1) {
+      // Reutilizaremos el servicio para buscar tribunales de tipo TCC
+      this.expService.buscarTribunales(term).subscribe(data => {
+        this.tribunalesSugeridos = data;
+      });
+    }
+  }
+    seleccionarTribunal(tribunal: any) {
+    this.completarForm.patchValue({
+      amparoTribunalId: tribunal.id,
+      nombreTribunal: tribunal.nombreCompleto // Necesitarás un campo auxiliar 'nombreTribunal' en el form para mostrarlo
+    });
+    this.tribunalesSugeridos = [];
   }
 
   // --- LÓGICA DE BÚSQUEDA EN TABLA ---
@@ -124,6 +151,7 @@ export class ExpedientesListaComponent implements OnInit {
     this.modoEdicion = true;
     this.expedienteSeleccionado = exp;
     this.completarForm.patchValue({
+      nombreJunta: exp.junta?.nombre || '',
       numeroExpediente: exp.numeroExpediente,
       sufijoExpediente: exp.sufijoExpediente || '',
       clienteId: exp.cliente?.id,
@@ -133,7 +161,12 @@ export class ExpedientesListaComponent implements OnInit {
       amparo: exp.amparo || '',
       anotacion: exp.anotacion || '',
       proximaAudiencia: exp.proximaAudiencia,
-      fechaRecordatorio: exp.fechaRecordatorio
+      fechaRecordatorio: exp.fechaRecordatorio,
+      tieneAmparo: !!exp.amparoNumero, // Se activa si ya tiene un número grabado
+      amparoNumero: exp.amparoNumero,
+      amparoFechaAudiencia: exp.amparoFechaAudiencia,
+      amparoTribunalId: exp.amparoTribunal?.id,
+      nombreTribunal: exp.amparoTribunal?.nombreCompleto || ''
     });
     this.modalVisible = true;
   }
@@ -154,21 +187,61 @@ export class ExpedientesListaComponent implements OnInit {
 
     this.guardando = true;
 
+    // 1. Obtenemos los valores crudos del formulario
+    const rawValues = this.completarForm.value;
+
+    // 2. Limpieza del Payload: 
+    // Extraemos 'junta' (el objeto) para descartarlo y nos quedamos con el resto (...payload)
+    // Esto asegura que solo enviemos 'nombreJunta' como un String simple.
+    const { junta, ...payload } = rawValues;
+
+    console.log('Enviando al servidor:', payload);
+
     const peticion = this.modoEdicion && this.expedienteSeleccionado
-      ? this.expService.completar(this.expedienteSeleccionado.id, this.completarForm.value)
-      : this.expService.crear(this.completarForm.value);
+      ? this.expService.completar(this.expedienteSeleccionado.id, payload)
+      : this.expService.crear(payload);
 
     peticion.subscribe({
-      next: () => {
+      next: (respuesta) => {
         this.guardando = false;
+        console.log('Respuesta exitosa:', respuesta); // Aquí deberías ver el ID de la junta ya asignado
         this.cerrarModal();
-        Swal.fire('Éxito', this.modoEdicion ? 'Actualizado correctamente' : 'Expediente creado con éxito', 'success');
+        Swal.fire({
+          title: '¡Éxito!',
+          text: this.modoEdicion ? 'Expediente actualizado' : 'Expediente creado correctamente',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
         this.cargarExpedientes();
       },
       error: (err) => {
         this.guardando = false;
-        Swal.fire('Error', err.error || 'Ocurrió un error al procesar la solicitud', 'error');
+        console.error('Error detallado:', err);
+        // Intentamos extraer el mensaje de error del backend
+        const msg = err.error?.message || err.error || 'Error al procesar la solicitud';
+        Swal.fire('Error', msg, 'error');
       }
     });
+  }
+
+    // 3. Métodos para el Autocomplete de Juntas
+  onJuntaInput(event: any) {
+    const term = event.target.value;
+    if (term.length > 1) {
+      this.expService.buscarJuntas(term).subscribe(data => {
+        this.juntasSugeridas = data;
+        this.mostrarSugerenciasJunta = true;
+      });
+    } else {
+      this.mostrarSugerenciasJunta = false;
+    }
+  }
+
+  seleccionarJunta(junta: any) {
+    this.completarForm.patchValue({
+      nombreJunta: junta.nombre
+    });
+    this.mostrarSugerenciasJunta = false;
   }
 }

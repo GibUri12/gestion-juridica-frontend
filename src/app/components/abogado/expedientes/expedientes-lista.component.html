@@ -101,6 +101,23 @@
 
   <div class="modal-body" [formGroup]="completarForm">
     
+    <div class="field-group">
+      <label class="field-label">JUNTA / LOCALIDAD <span class="required">*</span></label>
+      <div class="search-wrap" style="position: relative;">
+        <input
+          class="field-input"
+          type="text"
+          placeholder="Ej. Junta Local No. 1..."
+          formControlName="nombreJunta"
+          (input)="onJuntaInput($event)"
+          autocomplete="off"
+        />
+        <ul class="autocomplete-results" *ngIf="mostrarSugerenciasJunta && juntasSugeridas.length > 0">
+          <li *ngFor="let j of juntasSugeridas" (click)="seleccionarJunta(j)">{{ j.nombre }}</li>
+        </ul>
+      </div>
+    </div>
+    
     <div class="field-row">
       <div class="field-group">
         <label class="field-label">No. Expediente <span class="required">*</span></label>
@@ -124,9 +141,7 @@
           autocomplete="off"
         />
         <ul class="autocomplete-results" *ngIf="mostrarSugerenciasCliente && clientesSugeridas.length > 0">
-          <li *ngFor="let cli of clientesSugeridas" (click)="seleccionarCliente(cli)">
-            {{ cli.nombreCompleto }}
-          </li>
+          <li *ngFor="let cli of clientesSugeridas" (click)="seleccionarCliente(cli)">{{ cli.nombreCompleto }}</li>
         </ul>
       </div>
     </div>
@@ -136,10 +151,9 @@
       <input
         class="field-input"
         type="text"
-        placeholder="Escriba el nombre de la empresa o persona..."
+        placeholder="Escriba el nombre de la empresa..."
         formControlName="nombreEmpresa"
       />
-      <span class="field-hint">Si no existe, el sistema la registrará automáticamente.</span>
     </div>
 
     <div class="field-group">
@@ -158,10 +172,50 @@
       </div>
     </div>
 
-    <div class="field-row">
-      <div class="field-group">
-        <label class="field-label">Amparo / Recursos</label>
-        <input type="text" class="field-input" formControlName="amparo" />
+    <div class="field-group amparo-divider">
+      <div class="amparo-header">
+        <label class="field-label mb-0">
+          <i class="bi bi-file-earmark-lock2"></i> INFORMACIÓN DE AMPARO
+        </label>
+        <label class="switch">
+          <input type="checkbox" formControlName="tieneAmparo">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div *ngIf="completarForm.get('tieneAmparo')?.value" class="amparo-fields-container">
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">No. de Amparo</label>
+            <input class="field-input" type="text" formControlName="amparoNumero" placeholder="Ej. 123/2026" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Fecha Audiencia Constitucional</label>
+            <input type="date" class="field-input" formControlName="amparoFechaAudiencia" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Tribunal Colegiado (T.C.C.)</label>
+          <div class="search-wrap" style="position: relative;">
+            <input
+              class="field-input"
+              type="text"
+              placeholder="Buscar Tribunal Colegiado..."
+              formControlName="nombreTribunal"
+              (input)="onTribunalInput($event)"
+              autocomplete="off"
+            />
+            <ul class="autocomplete-results" *ngIf="tribunalesSugeridos.length > 0">
+              <li *ngFor="let t of tribunalesSugeridos" (click)="seleccionarTribunal(t)">{{ t.nombreCompleto }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Estatus / Recursos Amparo</label>
+          <input type="text" class="field-input" formControlName="amparo" placeholder="Ej. Pendiente de resolución / Suspensión" />
+        </div>
       </div>
     </div>
 
