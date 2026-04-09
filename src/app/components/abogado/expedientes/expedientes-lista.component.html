@@ -69,7 +69,12 @@
                   <div class="td-muted small">vs {{ exp.empresa.nombreCompleto }}</div>
                 </td>
                 <td>
-                  <span class="badge-owner" [ngClass]="{'badge-owner--mine': exp.estado === 'ACTIVO'}">
+                  <span class="badge-owner" 
+                    [ngClass]="{
+                      'badge-owner--mine': exp.estado === 'ACTIVO',
+                      'badge-status--process': exp.estado === 'EN_PROCESO',
+                      'badge-status--finalized': exp.estado === 'FINALIZADO'
+                    }">
                     {{ exp.estado }}
                   </span>
                 </td>
@@ -130,12 +135,21 @@
     </div>
 
     <div class="field-group">
+      <label class="field-label">ESTADO ACTUAL <span class="required">*</span></label>
+      <select class="field-input" formControlName="estado">
+        <option value="ACTIVO">ACTIVO</option>
+        <option value="EN_PROCESO">EN PROCESO</option>
+        <option value="FINALIZADO">FINALIZADO</option>
+      </select>
+    </div>
+
+    <div class="field-group">
       <label class="field-label">CLIENTE (Actor) <span class="required">*</span></label>
       <div class="search-wrap" style="position: relative;">
         <input
           class="field-input"
           type="text"
-          placeholder="Buscar cliente registrado..."
+          placeholder="Buscar cliente..."
           formControlName="nombreCliente"
           (input)="onClienteInput($event)"
           autocomplete="off"
@@ -148,12 +162,7 @@
 
     <div class="field-group">
       <label class="field-label">PARTES (Empresa/Demandado) <span class="required">*</span></label>
-      <input
-        class="field-input"
-        type="text"
-        placeholder="Escriba el nombre de la empresa..."
-        formControlName="nombreEmpresa"
-      />
+      <input class="field-input" type="text" formControlName="nombreEmpresa" />
     </div>
 
     <div class="field-group">
@@ -174,9 +183,7 @@
 
     <div class="field-group amparo-divider">
       <div class="amparo-header">
-        <label class="field-label mb-0">
-          <i class="bi bi-file-earmark-lock2"></i> INFORMACIÓN DE AMPARO
-        </label>
+        <label class="field-label mb-0"><i class="bi bi-file-earmark-lock2"></i> INFORMACIÓN DE AMPARO</label>
         <label class="switch">
           <input type="checkbox" formControlName="tieneAmparo">
           <span class="slider round"></span>
@@ -201,7 +208,7 @@
             <input
               class="field-input"
               type="text"
-              placeholder="Buscar Tribunal Colegiado..."
+              placeholder="Buscar o escribir tribunal..."
               formControlName="nombreTribunal"
               (input)="onTribunalInput($event)"
               autocomplete="off"
@@ -212,9 +219,29 @@
           </div>
         </div>
 
-        <div class="field-group">
+        <div class="field-group animate__animated animate__fadeIn" 
+             *ngIf="completarForm.get('nombreTribunal')?.value && !completarForm.get('amparoTribunalId')?.value"
+             style="background: #fff8f0; padding: 10px; border-radius: 8px; border: 1px dashed #e67e22; margin-top: 5px;">
+          <label class="field-label" style="color: #d35400; font-weight: 600;">
+            <i class="bi bi-info-circle-fill"></i> Nuevo Tribunal Detectado: Seleccione Tipo
+          </label>
+          <select class="field-input" formControlName="amparoTribunalTipo">
+            <option [ngValue]="null" disabled>-- Seleccione tipo de tribunal --</option>
+            <option value="TRIBUNAL_FEDERAL">TRIBUNAL FEDERAL</option>
+            <option value="JUNTA_LOCAL">JUNTA LOCAL</option>
+            <option value="JUNTA_FEDERAL">JUNTA FEDERAL</option>
+            <option value="TRIBUNAL_CDMX">TRIBUNAL CDMX</option>
+            <option value="TRIBUNAL_FEDERAL_NAUC">TRIBUNAL FEDERAL NAUC</option>
+            <option value="TRIBUNAL_ECAT">TRIBUNAL ECAT</option>
+            <option value="SALA_TFCA">SALA TFCA</option>
+            <option value="TRIBUNAL_ZONA">TRIBUNAL ZONA</option>
+            <option value="OTRO">OTRO</option>
+          </select>
+        </div>
+
+        <div class="field-group" style="margin-top: 10px;">
           <label class="field-label">Estatus / Recursos Amparo</label>
-          <input type="text" class="field-input" formControlName="amparo" placeholder="Ej. Pendiente de resolución / Suspensión" />
+          <input type="text" class="field-input" formControlName="amparo" />
         </div>
       </div>
     </div>

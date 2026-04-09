@@ -28,9 +28,9 @@ export class ExpedienteService {
   buscarClientes(term: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/autocomplete-cliente?term=${term}`);
   }
-  // En src/app/services/expediente.service.ts
+  
   crear(datos: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/legal`, datos); // <-- Agrega /legal aquí
+    return this.http.post(`${this.apiUrl}/legal`, datos);
   }
 
   buscarJuntas(termino: string): Observable<any[]> {
@@ -38,7 +38,6 @@ export class ExpedienteService {
   }
   
   buscarTribunales(termino: string): Observable<any[]> {
-  // Asegúrate de que esta ruta coincida con tu @GetMapping en el Controller del Back
   return this.http.get<any[]>(`${this.cattribunal}/catalogos/tribunales?term=${termino}`);
 }
 

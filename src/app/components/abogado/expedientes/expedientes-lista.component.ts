@@ -55,9 +55,11 @@ export class ExpedientesListaComponent implements OnInit {
       nombreCliente: ['', Validators.required],
       nombreEmpresa: ['', Validators.required], // Texto libre obligatorio
       litis: ['', Validators.required],
-      amparo: [''], // Opcional
-      anotacion: [''], // Opcional
-      proximaAudiencia: [''], // Opcional
+      estado: ['ACTIVO', Validators.required],
+      amparo: [''], 
+      anotacion: [''], 
+      proximaAudiencia: [''],
+      amparoTribunalTipo: [null],
       fechaRecordatorio: ['', Validators.required],
       tieneAmparo: [false],
       amparoNumero: [''],
@@ -89,6 +91,7 @@ export class ExpedientesListaComponent implements OnInit {
   }
     onTribunalInput(event: any) {
     const term = event.target.value;
+    this.completarForm.patchValue({ amparoTribunalId: null });
     if (term.length > 1) {
       // Reutilizaremos el servicio para buscar tribunales de tipo TCC
       this.expService.buscarTribunales(term).subscribe(data => {
@@ -96,10 +99,12 @@ export class ExpedientesListaComponent implements OnInit {
       });
     }
   }
-    seleccionarTribunal(tribunal: any) {
+
+  seleccionarTribunal(t: any) {
     this.completarForm.patchValue({
-      amparoTribunalId: tribunal.id,
-      nombreTribunal: tribunal.nombreCompleto // Necesitarás un campo auxiliar 'nombreTribunal' en el form para mostrarlo
+      nombreTribunal: t.nombreCompleto,
+      amparoTribunalId: t.id,
+      amparoTribunalTipo: t.tipo // Si ya existe, tomamos su tipo
     });
     this.tribunalesSugeridos = [];
   }
