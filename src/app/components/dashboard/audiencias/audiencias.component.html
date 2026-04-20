@@ -1,0 +1,314 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Gestión</p>
+        <h1 class="topbar-title">Audiencias</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date hide-mobile">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username hide-mobile">{{ userName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Toolbar con filtros -->
+      <div class="list-toolbar">
+        <div class="toolbar-filters">
+
+          <!-- Filtro estado -->
+          <select class="filter-select" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+            <option value="">Todos los estados</option>
+            <option value="PROGRAMADA">Programada</option>
+            <option value="REALIZADA">Realizada</option>
+            <option value="CANCELADA">Cancelada</option>
+            <option value="REPROGRAMADA">Reprogramada</option>
+          </select>
+
+          <!-- Filtro abogado -->
+          <select class="filter-select" [(ngModel)]="filtroAbogadoId" (change)="aplicarFiltros()">
+            <option [ngValue]="null">Todos los abogados</option>
+            <option *ngFor="let a of abogados" [ngValue]="a.id">{{ a.nombreCompleto }}</option>
+          </select>
+
+          <!-- Filtro fecha desde -->
+          <input class="filter-input" type="date" [(ngModel)]="filtroFechaDesde" (change)="aplicarFiltros()" placeholder="Desde" />
+          <input class="filter-input" type="date" [(ngModel)]="filtroFechaHasta" (change)="aplicarFiltros()" placeholder="Hasta" />
+
+          <!-- Limpiar filtros -->
+          <button class="btn-clear" *ngIf="hayFiltros()" (click)="limpiarFiltros()">
+            <i class="bi bi-x-circle"></i> Limpiar
+          </button>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModalCrear()">
+          <i class="bi bi-calendar-plus"></i>
+          <span>Nueva Audiencia</span>
+        </button>
+      </div>
+
+      <!-- Tabla -->
+      <section class="panel">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Expediente</th>
+                <th>Cliente / Empresa</th>
+                <th>Tipo</th>
+                <th>Tribunal</th>
+                <th>Fecha</th>
+                <th>Abogado</th>
+                <th>Estado</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr *ngIf="loading">
+                <td colspan="8">
+                  <div class="empty-state"><div class="spinner"></div><p>Cargando audiencias...</p></div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!loading && audiencias.length === 0">
+                <td colspan="8">
+                  <div class="empty-state">
+                    <i class="bi bi-calendar-x"></i>
+                    <p>No hay audiencias registradas</p>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngFor="let a of audiencias">
+                <td class="td-exp">{{ a.expedienteNumero || '—' }}</td>
+                <td>
+                  <div class="td-nombre">{{ a.clienteNombre || '—' }}</div>
+                  <div class="td-muted small" *ngIf="a.empresaNombre">vs {{ a.empresaNombre }}</div>
+                </td>
+                <td class="td-muted">
+                  <span class="tipo-badge">{{ a.tipoAudienciaAbreviatura || '—' }}</span>
+                </td>
+                <td class="td-muted">{{ a.tribunalClave || '—' }}</td>
+                <td>
+                  <div class="td-fecha">{{ a.fecha | date:'dd/MM/yy' }}</div>
+                  <div class="td-muted small" *ngIf="a.hora">{{ a.hora }}</div>
+                </td>
+                <td class="td-muted">
+                  <span *ngFor="let ab of a.abogados" class="abogado-chip" [class.titular]="ab.esTitular">
+                    {{ ab.claveAbogado || ab.nombreCompleto }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="badgeEstado(a.estado)">
+                    {{ labelEstado(a.estado) }}
+                  </span>
+                </td>
+                <td class="td-actions">
+                  <button class="action-btn action-edit" title="Editar" (click)="abrirModalEditar(a)"
+                    [disabled]="a.estado === 'REALIZADA'">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="action-btn action-state" title="Cambiar estado" (click)="abrirModalEstado(a)">
+                    <i class="bi bi-arrow-repeat"></i>
+                  </button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer" *ngIf="!loading && audiencias.length > 0">
+          <span>{{ audiencias.length }} audiencia{{ audiencias.length !== 1 ? 's' : '' }}</span>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL CREAR / EDITAR AUDIENCIA
+     ══════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modalVisible" (click)="cerrarModal()"></div>
+
+<div class="modal modal-lg" *ngIf="modalVisible">
+
+  <div class="modal-header">
+    <h2 class="modal-title">
+      <i class="bi bi-calendar-event"></i>
+      {{ modoEdicion ? 'Editar Audiencia' : 'Nueva Audiencia' }}
+    </h2>
+    <button class="modal-close" (click)="cerrarModal()"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <div class="modal-body">
+
+    <!-- Expediente autocomplete -->
+    <div class="field-group">
+      <label class="field-label">Expediente <span class="required">*</span></label>
+      <div class="autocomplete-wrap">
+        <i class="bi bi-folder2-open search-icon"></i>
+        <input
+          class="field-input autocomplete-input"
+          [class.field-error]="errors['expediente']"
+          type="text"
+          placeholder="Buscar por número de expediente..."
+          [(ngModel)]="expedienteQuery"
+          (input)="onExpedienteInput()"
+          (blur)="onExpedienteBlur()"
+        />
+        <div class="autocomplete-dropdown" *ngIf="expedienteSugerencias.length > 0">
+          <div class="autocomplete-item" *ngFor="let e of expedienteSugerencias"
+            (mousedown)="seleccionarExpediente(e)">
+            <i class="bi bi-folder2"></i>
+            <span><b>{{ e.numeroExpediente }}</b> — {{ e.cliente?.nombreCompleto }}</span>
+          </div>
+        </div>
+      </div>
+      <span class="error-msg" *ngIf="errors['expediente']">{{ errors['expediente'] }}</span>
+      <span class="field-selected" *ngIf="expedienteSeleccionado">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ expedienteSeleccionado.numeroExpediente }} — {{ expedienteSeleccionado.cliente?.nombreCompleto }}
+      </span>
+    </div>
+
+    <!-- Tipo de audiencia -->
+    <div class="field-group">
+      <label class="field-label">Tipo de Audiencia <span class="required">*</span></label>
+      <div class="autocomplete-wrap">
+        <i class="bi bi-tag search-icon"></i>
+        <input
+          class="field-input autocomplete-input"
+          [class.field-error]="errors['tipoAudiencia']"
+          type="text"
+          placeholder="Buscar tipo de audiencia..."
+          [(ngModel)]="tipoQuery"
+          (input)="onTipoInput()"
+          (blur)="onTipoBlur()"
+        />
+        <div class="autocomplete-dropdown" *ngIf="tipoSugerencias.length > 0">
+          <div class="autocomplete-item" *ngFor="let t of tipoSugerencias"
+            (mousedown)="seleccionarTipo(t)">
+            <i class="bi bi-tag"></i>
+            <span><b>{{ t.abreviatura }}</b> — {{ t.descripcion }}</span>
+          </div>
+        </div>
+      </div>
+      <span class="error-msg" *ngIf="errors['tipoAudiencia']">{{ errors['tipoAudiencia'] }}</span>
+      <span class="field-selected" *ngIf="tipoSeleccionado">
+        <i class="bi bi-check-circle-fill"></i> {{ tipoSeleccionado.abreviatura }} — {{ tipoSeleccionado.descripcion }}
+      </span>
+    </div>
+
+    <!-- Tribunal -->
+    <div class="field-group">
+      <label class="field-label">Tribunal <span class="required">*</span></label>
+      <div class="autocomplete-wrap">
+        <i class="bi bi-building search-icon"></i>
+        <input
+          class="field-input autocomplete-input"
+          [class.field-error]="errors['tribunal']"
+          type="text"
+          placeholder="Buscar tribunal por clave o nombre..."
+          [(ngModel)]="tribunalQuery"
+          (input)="onTribunalInput()"
+          (blur)="onTribunalBlur()"
+        />
+        <div class="autocomplete-dropdown" *ngIf="tribunalSugerencias.length > 0">
+          <div class="autocomplete-item" *ngFor="let t of tribunalSugerencias"
+            (mousedown)="seleccionarTribunal(t)">
+            <i class="bi bi-building"></i>
+            <span><b>{{ t.clave }}</b> — {{ t.nombreCompleto }}</span>
+          </div>
+        </div>
+      </div>
+      <span class="error-msg" *ngIf="errors['tribunal']">{{ errors['tribunal'] }}</span>
+      <span class="field-selected" *ngIf="tribunalSeleccionado">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ tribunalSeleccionado.clave }} — {{ tribunalSeleccionado.nombreCompleto }}
+      </span>
+    </div>
+
+    <!-- Fecha y hora -->
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Fecha <span class="required">*</span></label>
+        <input class="field-input" [class.field-error]="errors['fecha']" type="date" [(ngModel)]="form.fecha" />
+        <span class="error-msg" *ngIf="errors['fecha']">{{ errors['fecha'] }}</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Hora</label>
+        <input class="field-input" type="time" [(ngModel)]="form.hora" />
+      </div>
+    </div>
+
+    <!-- Abogados -->
+    <div class="field-group">
+      <label class="field-label">Abogado Titular <span class="required">*</span></label>
+      <select class="field-input" [class.field-error]="errors['abogado']" [(ngModel)]="form.abogadoTitularId"
+        (change)="onTitularChange()">
+        <option [ngValue]="null">— Selecciona el abogado titular —</option>
+        <option *ngFor="let a of abogados" [ngValue]="a.id">{{ a.nombreCompleto }}</option>
+      </select>
+      <span class="error-msg" *ngIf="errors['abogado']">{{ errors['abogado'] }}</span>
+    </div>
+
+    <!-- Abogados adicionales -->
+    <div class="field-group">
+      <label class="field-label">Abogados Adicionales</label>
+      <div class="abogados-list">
+        <label class="abogado-check" *ngFor="let a of abogados">
+          <input type="checkbox"
+            [checked]="form.abogadoIds.includes(a.id)"
+            [disabled]="a.id === form.abogadoTitularId"
+            (change)="toggleAbogado(a.id, $event)"
+          />
+          <span>{{ a.nombreCompleto }}</span>
+          <span class="titular-tag" *ngIf="a.id === form.abogadoTitularId">Titular</span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-secondary" (click)="cerrarModal()" [disabled]="guardando">Cancelar</button>
+    <button class="btn-primary" (click)="guardar()" [disabled]="guardando">
+      <span *ngIf="!guardando"><i class="bi bi-check2"></i> {{ modoEdicion ? 'Guardar cambios' : 'Crear audiencia' }}</span>
+      <span *ngIf="guardando" class="btn-loading"><div class="spinner spinner-sm"></div> Guardando...</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- Modal cambiar estado -->
+<div class="modal-backdrop" *ngIf="modalEstadoVisible" (click)="modalEstadoVisible = false"></div>
+<div class="modal modal-sm" *ngIf="modalEstadoVisible">
+  <div class="modal-header">
+    <h2 class="modal-title"><i class="bi bi-arrow-repeat"></i> Cambiar Estado</h2>
+    <button class="modal-close" (click)="modalEstadoVisible = false"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="modal-body">
+    <p class="estado-exp-num">{{ audienciaEstado?.expedienteNumero }} · {{ audienciaEstado?.fecha | date:'dd/MM/yy' }}</p>
+    <div class="estado-options">
+      <button class="estado-btn" *ngFor="let est of estados"
+        [class.active]="audienciaEstado?.estado === est.value"
+        (click)="guardarEstado(est.value)">
+        <span class="estado-dot" [ngClass]="est.clase"></span>
+        {{ est.label }}
+      </button>
+    </div>
+  </div>
+</div>
