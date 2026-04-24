@@ -26,6 +26,12 @@ export const routes: Routes = [
       loadComponent: () => 
         import ('./components/abogado/expedientes/expedientes-lista.component')
         .then(m => m.ExpedientesListaComponent)
+      },
+      {
+      path: 'audiencias',
+        loadComponent: () =>
+          import('./components/dashboard/audiencias/audiencias.component')
+            .then(m => m.AudienciasComponent)
       }
     ]
   },
