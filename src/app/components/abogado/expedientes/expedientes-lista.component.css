@@ -485,4 +485,377 @@
   .field-row    { grid-template-columns: 1fr; }
   .modal        { max-width: calc(100vw - 24px); }
 }
+/* ════════════════════════════════════════
+   MODALES — ESTILOS UNIFICADOS SiGA
+   ════════════════════════════════════════ */
 
+/* ── Tabla: columna Litis ── */
+.data-table td:nth-child(4) {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.data-table td:nth-child(4):hover {
+  white-space: normal;
+  overflow: visible;
+  position: relative;
+  background: var(--bg-hover);
+  z-index: 10;
+}
+
+/* ── Botones de acción (tabla) ── */
+.action-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+/* Se mantienen los colores de iconos de acción tal como estaban */
+.action-edit      { background: #e3f2fd; color: #1976d2; }
+.action-view      { background: #f3e5f5; color: #7b1fa2; }
+.action-audiencias { background: #fff3e0; color: #f57c00; }
+.action-history   { background: #e8f5e9; color: #388e3c; }
+
+.action-btn:hover { transform: translateY(-2px); filter: brightness(0.9); }
+
+/* ════════════════════════════════════════
+   HEADER COMPARTIDO (Detalles + Historial)
+   ════════════════════════════════════════ */
+.header-history {
+  color: #ffffff;
+  border-bottom: 3px solid var(--gold);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.header-history .modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--gold-light);
+}
+
+.btn-close-custom {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.btn-close-custom:hover {
+  color: var(--gold);
+}
+
+/* ════════════════════════════════════════
+   MODAL DETALLES DEL EXPEDIENTE
+   ════════════════════════════════════════ */
+
+/* Contenedor de rejilla */
+.info-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+/* Caja individual */
+.info-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  padding: 12px 15px;
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+.info-box:hover {
+  border-color: var(--gold-border);
+  background: var(--bg-hover);
+  box-shadow: var(--shadow-card);
+}
+
+.info-box label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.info-box span {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.full-width { grid-column: span 2; }
+
+/* Encabezado de sección */
+.section-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amparo-border {
+  color: var(--gold);
+  border-top: 2px dashed var(--gold-border);
+  padding-top: 20px;
+}
+
+/* Badge de expediente */
+.badge-expediente {
+  background: var(--bg-hover);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: 'Monaco', monospace;
+  color: var(--text-second);
+  border: 1px solid var(--border-soft);
+}
+
+/* Texto de contenido largo */
+.text-content {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-second);
+  line-height: 1.5;
+}
+.italic { font-style: italic; }
+
+/* Fondo especial para recursos de amparo */
+.bg-light-blue {
+  background-color: var(--gold-muted);
+  border-color: var(--gold-border);
+}
+
+/* Texto primary (número de amparo) */
+.text-primary {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+/* ════════════════════════════════════════
+   MODAL HISTORIAL DE CAMBIOS
+   ════════════════════════════════════════ */
+.body-history-light {
+  background-color: var(--bg-page);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Timeline vertical */
+.timeline-container-light {
+  position: relative;
+  border-left: 2px solid var(--gold-border);
+  margin-left: 25px;
+  padding-left: 20px;
+}
+
+.timeline-item-light {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+/* Avatar con inicial */
+.timeline-avatar-light {
+  position: absolute;
+  left: -38px;
+  top: 5px;
+}
+
+.avatar-init {
+  width: 34px;
+  height: 34px;
+  background-color: var(--gold);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* Tarjeta de movimiento */
+.card-movimiento {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+}
+.card-movimiento:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--gold-border);
+}
+
+.card-movimiento-header {
+  padding: 10px 15px;
+  background-color: var(--bg-hover);
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.user-fullname {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.mov-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Botón ver detalles */
+.btn-action-view-small {
+  background-color: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-action-view-small:hover {
+  background-color: var(--gold);
+  color: #ffffff;
+}
+
+/* Cuerpo del movimiento */
+.card-movimiento-body {
+  padding: 12px 15px;
+}
+
+.text-desc {
+  margin: 0;
+  color: var(--text-second);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.more-indicator {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--gold-light);
+  font-weight: 500;
+}
+
+/* Estado vacío */
+.empty-history-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+/* ════════════════════════════════════════
+   MODAL OVERLAY — DETALLE DE MODIFICACIÓN
+   ════════════════════════════════════════ */
+.modal-overlay-detail {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.modal-detail-content {
+  background: var(--bg-card);
+  width: 90%;
+  max-width: 500px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-hover);
+}
+
+/* Header del overlay */
+.modal-detail-content .modal-header {
+  background-color: var(--text-primary);
+  color: #ffffff;
+  border-bottom: 3px solid var(--gold);
+  padding: 1rem 1.5rem;
+}
+
+.modal-detail-content .modal-header h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  margin: 0;
+}
+
+/* Meta del movimiento */
+.info-meta {
+  font-size: 0.9rem;
+  color: var(--text-second);
+  line-height: 1.8;
+}
+
+/* Texto de auditoría */
+.detalle-texto {
+  background-color: var(--bg-hover);
+  padding: 1.2rem;
+  border: 1px solid var(--border-soft);
+  border-left: 5px solid var(--gold);
+  font-family: 'Consolas', monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* Footer del overlay */
+.modal-detail-content .modal-footer {
+  background-color: var(--bg-page);
+  border-top: 1px solid var(--border-soft);
+  padding: 0.75rem 1.5rem;
+}
+
+.modal-detail-content .modal-footer .btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-detail-content .modal-footer .btn-secondary:hover {
+  background-color: var(--gold);
+  color: #ffffff;
+}

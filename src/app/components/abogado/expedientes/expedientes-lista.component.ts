@@ -22,6 +22,11 @@ export class ExpedientesListaComponent implements OnInit {
   guardando: boolean = false;
   modalVisible: boolean = false;
   modoEdicion: boolean = false;
+  modalDetallesVisible: boolean = false;
+  modalHistorialVisible: boolean = false;
+  historialMovimientos: any[] = [];
+  loadingHistorial: boolean = false;
+  movimientoSeleccionadoDetalle: any = null;
 
   // Datos y Sugerencias
   expedientes: Expediente[] = [];
@@ -163,6 +168,7 @@ export class ExpedientesListaComponent implements OnInit {
       nombreCliente: exp.cliente?.nombreCompleto,
       nombreEmpresa: exp.empresa?.nombreCompleto || '', // Muestra el nombre de la empresa vinculada
       litis: exp.litis,
+      estado: exp.estado,
       amparo: exp.amparo || '',
       anotacion: exp.anotacion || '',
       proximaAudiencia: exp.proximaAudiencia,
@@ -248,5 +254,41 @@ export class ExpedientesListaComponent implements OnInit {
       nombreJunta: junta.nombre
     });
     this.mostrarSugerenciasJunta = false;
+  }
+
+    // 2. VER DETALLES
+  verDetalles(exp: Expediente) {
+    this.expedienteSeleccionado = exp;
+    this.modalDetallesVisible = true;
+  }
+
+  // 4. VER HISTORIAL
+  verHistorial(exp: Expediente) {
+    this.expedienteSeleccionado = exp;
+    this.modalHistorialVisible = true;
+    this.loadingHistorial = true;
+    
+    // Llamada al endpoint que nos mostraste del Back
+    this.expService.getMovimientos(exp.id).subscribe({
+      next: (res: any) => {
+        // Como tu controller devuelve un Page, tomamos content
+        this.historialMovimientos = res.content;
+        this.loadingHistorial = false;
+      },
+      error: () => {
+        this.loadingHistorial = false;
+        Swal.fire('Error', 'No se pudo cargar el historial', 'error');
+      }
+    });
+  }
+
+  cerrarModalesAdicionales() {
+    this.modalDetallesVisible = false;
+    this.modalHistorialVisible = false;
+    this.historialMovimientos = [];
+  }
+
+  verDetalleMovimiento(mov: any) {
+    this.movimientoSeleccionadoDetalle = mov;
   }
 }

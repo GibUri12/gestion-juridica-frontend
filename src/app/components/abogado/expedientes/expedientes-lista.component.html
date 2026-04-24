@@ -45,29 +45,53 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>No. Expediente</th>
-                <th>Cliente / Empresa</th>
+                <th>JUNTA</th>
+                <th>EXP.</th>
+                <th>PARTES (Actor vs Demandado)</th>
+                <th>LITIS</th>
+                <th>PROX. AUD.</th>
+                <th>AMPARO</th>
                 <th>Estado</th>
-                <th>Próxima Audiencia</th>
                 <th class="th-actions">Acciones</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngIf="loading">
-                <td colspan="5">
-                  <div class="empty-state"><div class="spinner"></div><p>Cargando...</p></div>
+                <td colspan="7"> <div class="empty-state"><div class="spinner"></div><p>Cargando...</p></div>
                 </td>
               </tr>
 
               <tr *ngFor="let exp of expedientesFiltrados">
-                <td class="td-nombre">
+                <td class="text-center">
+                  <strong>{{ exp.junta?.nombre || '-' }}</strong>
+                </td>
+                
+                <td>
                   <strong>{{ exp.numeroExpediente }}</strong>
                   <div class="td-muted small">{{ exp.sufijoExpediente }}</div>
                 </td>
+
                 <td>
                   <div class="td-nombre">{{ exp.cliente.nombreCompleto }}</div>
-                  <div class="td-muted small">vs {{ exp.empresa.nombreCompleto }}</div>
+                  <div class="td-muted small">VS {{ exp.empresa.nombreCompleto }}</div>
                 </td>
+
+                <td class="td-muted small">
+                  {{ exp.litis }}
+                </td>
+
+                <td class="td-muted">
+                  {{ exp.proximaAudiencia ? (exp.proximaAudiencia | date:'dd/MM/yyyy') : 'Pendiente' }}
+                </td>
+
+                <td>
+                  <div *ngIf="exp.amparoNumero">
+                    <div class="small"><strong>{{ exp.amparoTribunal?.nombreCompleto }}</strong></div>
+                    <div class="small text-primary">{{ exp.amparoNumero }}</div>
+                  </div>
+                  <div *ngIf="!exp.amparoNumero" class="td-muted small">N/A</div>
+                </td>
+
                 <td>
                   <span class="badge-owner" 
                     [ngClass]="{
@@ -78,11 +102,24 @@
                     {{ exp.estado }}
                   </span>
                 </td>
-                <td class="td-muted">{{ exp.proximaAudiencia || 'Pendiente' }}</td>
+
                 <td class="td-actions">
-                  <button class="action-btn action-edit" (click)="abrirModalEditar(exp)">
+                  <button class="action-btn action-edit" (click)="abrirModalEditar(exp)" title="Edita">
                     <i class="bi bi-pencil-square"></i>
                   </button>
+                  
+                  <button class="action-btn action-view" (click)="verDetalles(exp)" title="Ver Detalles">
+                    <i class="bi bi-eye"></i>
+                  </button>
+
+                  <button class="action-btn action-audiencias" title="Audiencias (Próximamente)">
+                    <i class="bi bi-calendar-event"></i>
+                  </button>
+
+                  <button class="action-btn action-history" (click)="verHistorial(exp)" title="Historial de Cambios">
+                    <i class="bi bi-clock-history"></i>
+                  </button>
+                                
                 </td>
               </tr>
             </tbody>
@@ -257,5 +294,158 @@
     <button class="btn-primary" (click)="guardar()" [disabled]="guardando">
       <i class="bi bi-check2"></i> {{ modoEdicion ? 'Actualizar' : 'Crear' }} Expediente
     </button>
+  </div>
+</div>
+
+<div class="modal modal-lg" *ngIf="modalDetallesVisible">
+  <div class="modal-header header-history">
+    <h2 class="modal-title" >
+      <i class="bi bi-file-earmark-ruled me-2"></i> 
+      Detalles del Expediente
+    </h2>
+    <button class="btn-close-custom" (click)="cerrarModalesAdicionales()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body p-4">
+    <div class="section-header mb-3">
+      <i class="bi bi-gavel"></i> Juicio Principal
+    </div>
+    
+    <div class="info-container">
+      <div class="info-box">
+        <label>Junta / Localidad</label>
+        <span>{{expedienteSeleccionado?.junta?.nombre || 'No especificada'}}</span>
+      </div>
+      <div class="info-box">
+        <label>Número de Expediente</label>
+        <span class="badge-expediente">
+          {{expedienteSeleccionado?.numeroExpediente}} {{expedienteSeleccionado?.sufijoExpediente}}
+        </span>
+      </div>
+      <div class="info-box">
+        <label>Cliente</label>
+        <span><i class="bi bi-person"></i> {{expedienteSeleccionado?.cliente?.nombreCompleto}}</span>
+      </div>
+      <div class="info-box">
+        <label>Empresa</label>
+        <span><i class="bi bi-building"></i> {{expedienteSeleccionado?.empresa?.nombreCompleto}}</span>
+      </div>
+      
+      <div class="info-box full-width">
+        <label>Litis (Motivo del juicio)</label>
+        <p class="text-content">{{expedienteSeleccionado?.litis}}</p>
+      </div>
+      
+      <div class="info-box full-width">
+        <label>Anotaciones Generales</label>
+        <p class="text-content italic">{{expedienteSeleccionado?.anotacion || 'Sin anotaciones adicionales.'}}</p>
+      </div>
+    </div>
+
+    <ng-container *ngIf="expedienteSeleccionado?.amparoNumero || expedienteSeleccionado?.amparoTribunal">
+      <div class="section-header mt-4 mb-3 amparo-border">
+        <i class="bi bi-shield-check"></i> Información de Amparo
+      </div>
+      
+      <div class="info-container">
+        <div class="info-box">
+          <label>No. de Amparo</label>
+          <span class="text-primary fw-bold">{{expedienteSeleccionado?.amparoNumero || 'N/A'}}</span>
+        </div>
+        <div class="info-box">
+          <label>Fecha Aud. Constitucional</label>
+          <span><i class="bi bi-calendar-event"></i> {{ (expedienteSeleccionado?.amparoFechaAudiencia | date:'dd/MM/yyyy') || 'Pendiente' }}</span>
+        </div>
+        <div class="info-box full-width">
+          <label>Tribunal Colegiado (T.C.C.)</label>
+          <span>{{expedienteSeleccionado?.amparoTribunal?.nombreCompleto || 'No asignado'}}</span>
+        </div>
+        <div class="info-box full-width bg-light-blue">
+          <label>Recursos / Estatus de Amparo</label>
+          <p class="text-content">{{expedienteSeleccionado?.amparo || 'Sin recursos registrados.'}}</p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<div class="modal modal-lg" *ngIf="modalHistorialVisible">
+  <div class="modal-header header-history">
+    <h2 class="modal-title">
+      <i class="bi bi-clock-history"></i> 
+      Historial de Cambios: {{ expedienteSeleccionado?.numeroExpediente }}
+    </h2>
+    <button class="btn-close-custom" (click)="cerrarModalesAdicionales()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body body-history-light">
+    <div *ngIf="loadingHistorial" class="text-center p-5">
+      <div class="spinner-border text-success" role="status"></div>
+      <p class="text-muted mt-2">Consultando bitácora legal...</p>
+    </div>
+
+    <div class="timeline-container-light" *ngIf="!loadingHistorial">
+      
+      <div class="timeline-item-light" *ngFor="let mov of historialMovimientos">
+        <div class="timeline-avatar-light">
+          <div class="avatar-init">
+            {{ mov.usuario.username.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+
+        <div class="card-movimiento">
+          <div class="card-movimiento-header">
+            <div class="user-meta">
+              <span class="user-fullname">{{ mov.usuario.nombreCompleto || mov.usuario.username }}</span>
+              <span class="mov-date">
+                <i class="bi bi-calendar3"></i> {{ mov.createdAt | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+            <button class="btn-action-view-small" (click)="verDetalleMovimiento(mov)">
+              <i class="bi bi-zoom-in"></i> Detalles
+            </button>
+          </div>
+
+          <div class="card-movimiento-body">
+            <p class="text-desc">{{ mov.descripcion.split('\n')[0] }}</p>
+            <span class="more-indicator" *ngIf="mov.descripcion.includes('\n')">
+              <i class="bi bi-plus-circle"></i> Contiene múltiples modificaciones
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="historialMovimientos.length === 0" class="empty-history-state">
+        <i class="bi bi-journal-x"></i>
+        <p>No se han registrado movimientos en la bitácora.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay-detail" *ngIf="movimientoSeleccionadoDetalle">
+  <div class="modal-detail-content">
+    <div class="modal-header">
+      <h5 class="m-0">Detalle de Modificación</h5>
+      <button class="btn-close btn-close-white" (click)="movimientoSeleccionadoDetalle = null"></button>
+    </div>
+    <div class="modal-body">
+      <div class="info-meta mb-3">
+        <strong>Realizado por:</strong> {{ movimientoSeleccionadoDetalle.usuario.username }} <br>
+        <strong>Fecha:</strong> {{ movimientoSeleccionadoDetalle.createdAt | date:'fullDate' }}
+      </div>
+      <hr>
+      <h6>Campos modificados:</h6>
+      <div class="cambios-container">
+        <pre class="detalle-texto">{{ movimientoSeleccionadoDetalle.descripcion }}</pre>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="movimientoSeleccionadoDetalle = null">Cerrar</button>
+    </div>
   </div>
 </div>

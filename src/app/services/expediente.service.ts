@@ -41,4 +41,8 @@ export class ExpedienteService {
   return this.http.get<any[]>(`${this.cattribunal}/catalogos/tribunales?term=${termino}`);
 }
 
+getMovimientos(expedienteId: number, page: number = 0, size: number = 20) {
+  return this.http.get(`${this.apiUrl}/${expedienteId}/movimientos?page=${page}&size=${size}`);
+}
+
 }
