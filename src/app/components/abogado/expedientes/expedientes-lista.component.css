@@ -859,3 +859,46 @@
   background-color: var(--gold);
   color: #ffffff;
 }
+/* ── Celda de acciones ── */
+.td-actions {
+  white-space: nowrap;
+}
+
+/* ── Grupo de botones ── */
+.action-group {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* ── Botón base ── */
+.action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.88);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Colores por tipo (se mantienen igual) ── */
+.action-edit      { background: #e3f2fd; color: #1976d2; }
+.action-view      { background: #f3e5f5; color: #7b1fa2; }
+.action-audiencias { background: #fff3e0; color: #f57c00; }
+.action-history   { background: #e8f5e9; color: #388e3c; }
