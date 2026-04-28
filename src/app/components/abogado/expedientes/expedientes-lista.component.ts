@@ -5,6 +5,8 @@ import { ExpedienteService } from '../../../services/expediente.service';
 import { Expediente } from './expediente.model';
 import Swal from 'sweetalert2';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
+import { AuthService } from '../../../services/auth.service';
+
 
 @Component({
   selector: 'app-expedientes-lista',
@@ -27,6 +29,8 @@ export class ExpedientesListaComponent implements OnInit {
   historialMovimientos: any[] = [];
   loadingHistorial: boolean = false;
   movimientoSeleccionadoDetalle: any = null;
+  public usuariosResultados: any[] = [];
+  abogadosParaSeleccionar: any[] = [];
 
   // Datos y Sugerencias
   expedientes: Expediente[] = [];
@@ -38,6 +42,8 @@ export class ExpedientesListaComponent implements OnInit {
   clientesSugeridas: any[] = [];
   tribunalesSugeridos: any[] = [];
   mostrarSugerenciasCliente: boolean = false;
+  abogadosAsignados: any[] = [];
+  usuariosDisponibles: any[] = [];
 
   // Formulario
   completarForm: FormGroup;
@@ -45,6 +51,7 @@ export class ExpedientesListaComponent implements OnInit {
 
   constructor(
     private expService: ExpedienteService,
+    public authService: AuthService,
     private fb: FormBuilder
   ) {
     // Definir fecha mínima (Hoy + 45 días)
@@ -77,8 +84,16 @@ export class ExpedientesListaComponent implements OnInit {
   ngOnInit() {
     
     this.cargarExpedientes();
+    this.cargarCatalogoAbogados();
     
   }
+
+  cargarCatalogoAbogados() {
+  this.expService.getAbogadosDisponibles().subscribe({
+    next: (data) => this.abogadosParaSeleccionar = data,
+    error: (err) => console.error("Error cargando abogados:", err)
+  });
+}
 
   cargarExpedientes() {
     this.loading = true;
@@ -290,5 +305,91 @@ export class ExpedientesListaComponent implements OnInit {
 
   verDetalleMovimiento(mov: any) {
     this.movimientoSeleccionadoDetalle = mov;
+  }
+
+  cargarAbogados(idExpediente: number) {
+    this.expService.getAbogadosAsignados(idExpediente).subscribe(data => {
+      this.abogadosAsignados = data;
+    });
+  }
+
+  asignarNuevoAbogado(usuarioId: number) {
+    // 1. Verificamos si existe el expediente de forma segura
+    if (!this.expedienteSeleccionado?.id) {
+      console.warn("No hay un expediente seleccionado para asignar.");
+      return;
+    }
+
+    // 2. Usamos el '!' al final si ya validamos arriba que existe
+    this.expService.asignarAbogado(this.expedienteSeleccionado.id, usuarioId).subscribe({
+      next: () => {
+        this.cargarAbogados(this.expedienteSeleccionado!.id); // Refrescar lista
+      },
+      error: (err) => console.error("Error al asignar:", err)
+    });
+  }
+
+  puedeEditar(): boolean {
+    const user = this.authService.getUsuarioActual(); 
+    
+    // Si no hay expediente cargado, nadie puede editar nada
+    if (!this.expedienteSeleccionado) return false;
+
+    // Roles administrativos (acceso total)
+    if (user.rol === 'ROLE_ADMINISTRADOR' || user.rol === 'ROLE_IT_MANAGER') return true;
+
+    if (user.rol === 'ROLE_ABOGADO') {
+      // Verificamos si es el creador usando ? para evitar errores si createdBy es null
+      const esCreador = this.expedienteSeleccionado.createdBy?.id === user.id;
+      
+      // Verificamos si está en la lista de asignados
+      const esAsignado = this.abogadosAsignados.some(a => a.id === user.id);
+      
+      return esAsignado || esCreador;
+    }
+
+    return false;
+  }
+
+  // El método de buscar ahora filtra la lista que ya tenemos
+  buscarUsuarios(term: string) {
+    if (!term.trim()) {
+      this.usuariosResultados = [];
+      return;
+    }
+
+    const query = term.toLowerCase();
+    this.usuariosResultados = this.abogadosParaSeleccionar.filter(abogado => 
+      abogado.nombreCompleto.toLowerCase().includes(query) || 
+      abogado.username.toLowerCase().includes(query)
+    );
+  }
+
+  removerAbogado(expedienteId: number, usuarioId: number) {
+    if (confirm('¿Está seguro de remover a este abogado del caso?')) {
+      this.expService.removerAbogado(expedienteId, usuarioId).subscribe({
+        next: () => {
+          // Refrescar la lista local
+          this.abogadosAsignados = this.abogadosAsignados.filter(a => a.id !== usuarioId);
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  guardarCambiosAbogado() {
+    if (!this.expedienteSeleccionado) return;
+
+    const datos = {
+      anotacion: this.expedienteSeleccionado.anotacion
+    };
+
+    this.expService.completar(this.expedienteSeleccionado.id, datos).subscribe({
+      next: () => {
+        alert('Anotaciones guardadas correctamente');
+        // Opcional: recargar datos
+      },
+      error: (err) => alert('Error al guardar: ' + err.message)
+    });
   }
 }

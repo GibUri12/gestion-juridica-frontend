@@ -27,4 +27,12 @@ export class AuthService {
   getRole() {
     return localStorage.getItem('role');
   }
+
+  getUsuarioActual() {
+  return {
+    id: Number(localStorage.getItem('userId')),
+    username: localStorage.getItem('username'),
+    rol: localStorage.getItem('role')
+  };
+}
 }

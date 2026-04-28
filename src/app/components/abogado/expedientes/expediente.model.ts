@@ -22,5 +22,10 @@ export interface Expediente {
     nombreCompleto: string;
     clave: string;
   };
+    createdBy?: {
+    id: number;
+    username: string;
+    nombreCompleto?: string;
+  };
   
 }
