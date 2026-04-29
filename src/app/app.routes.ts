@@ -3,7 +3,6 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { roleGuard } from './guards/auth.guard';
 
-
 export const routes: Routes = [
   { path: '',      redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
@@ -32,6 +31,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/dashboard/audiencias/audiencias.component')
             .then(m => m.AudienciasComponent)
+      },
+      {
+      path: 'usuarios',
+        loadComponent: () =>
+          import('./components/abogado/usuarios/usuarios.component')
+            .then(m => m.UsuariosComponent)
+      },
+      {
+        path: 'notificaciones',
+        loadComponent: () =>
+          import('./components/dashboard/notificaciones/notificaciones-admin.component')
+            .then(m => m.NotificacionesAdminComponent)
       }
     ]
   },
