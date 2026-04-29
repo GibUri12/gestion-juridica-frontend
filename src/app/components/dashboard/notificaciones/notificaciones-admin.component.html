@@ -1,0 +1,81 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Panel de Administración</p>
+        <h1 class="topbar-title">
+          Notificaciones
+          <span class="badge-count" *ngIf="noLeidasCount > 0">{{ noLeidasCount }}</span>
+        </h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date hide-mobile">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username hide-mobile">{{ userName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Toolbar -->
+      <div class="notif-toolbar" *ngIf="!loading">
+        <span class="notif-count-label">
+          {{ notificaciones.length }} notificaciones
+          <span *ngIf="noLeidasCount > 0">({{ noLeidasCount }} sin leer)</span>
+        </span>
+        <button class="btn-mark-all" *ngIf="noLeidasCount > 0" (click)="marcarTodasLeidas()">
+          <i class="bi bi-check2-all"></i> Marcar todas como leídas
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div><p>Cargando...</p>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state-full" *ngIf="!loading && notificaciones.length === 0">
+        <i class="bi bi-bell-slash"></i>
+        <h3>Sin notificaciones</h3>
+        <p>Aquí verás los resultados registrados por los abogados.</p>
+      </div>
+
+      <!-- Lista -->
+      <div class="notif-list" *ngIf="!loading && notificaciones.length > 0">
+        <div class="notif-item"
+             *ngFor="let n of notificaciones"
+             [class.notif--no-leida]="!n.leida"
+             (click)="onClickNotificacion(n)">
+
+          <div class="notif-icon-wrap" [ngClass]="colorTipo(n.tipo)">
+            <i class="bi" [ngClass]="iconoTipo(n.tipo)"></i>
+          </div>
+
+          <div class="notif-content">
+            <p class="notif-titulo">{{ n.titulo }}</p>
+            <p class="notif-mensaje">{{ n.mensaje }}</p>
+            <div class="notif-meta">
+              <span class="notif-fecha"><i class="bi bi-clock"></i> {{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="notif-link" *ngIf="n.referenceId && n.tipo === 'RESULTADO_AUDIENCIA_REGISTRADO'">
+                <i class="bi bi-box-arrow-up-right"></i> Ver expediente
+              </span>
+            </div>
+          </div>
+
+          <div class="notif-status">
+            <span class="dot-unread" *ngIf="!n.leida" title="No leída"></span>
+            <i class="bi bi-chevron-right notif-arrow"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

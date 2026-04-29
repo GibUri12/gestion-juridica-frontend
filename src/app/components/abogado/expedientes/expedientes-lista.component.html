@@ -8,12 +8,13 @@
         <h1 class="topbar-title">Expedientes</h1>
       </div>
       <div class="topbar-right">
-        <div class="topbar-date">
+        <div class="topbar-date hide-mobile">
           <i class="bi bi-calendar3"></i>
           <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
         </div>
         <div class="topbar-user">
           <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username hide-mobile">{{ userName }}</span>
         </div>
       </div>
     </header>
@@ -112,7 +113,7 @@
                     <i class="bi bi-eye"></i>
                   </button>
 
-                  <button class="action-btn action-audiencias" title="Audiencias (Próximamente)">
+                  <button class="action-btn action-audiencias" title="Audiencias" (click)="verAudiencias(exp)">
                     <i class="bi bi-calendar-event"></i>
                   </button>
 
@@ -482,5 +483,156 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="movimientoSeleccionadoDetalle = null">Cerrar</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Modal Audiencias del Expediente
+════════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modalAudienciasVisible" (click)="cerrarModalAudiencias()"></div>
+
+<div class="modal modal-lg aud-modal" *ngIf="modalAudienciasVisible" (click)="$event.stopPropagation()">
+  <div class="aud-modal-header">
+    <div class="aud-header-left">
+      <i class="bi bi-calendar-event aud-icon"></i>
+      <div>
+        <h2 class="aud-title">Audiencias del Expediente</h2>
+        <p class="aud-subtitle">{{ expedienteSeleccionado?.numeroExpediente }} · {{ expedienteSeleccionado?.cliente?.nombreCompleto }}</p>
+      </div>
+    </div>
+    <button class="aud-btn-close" (click)="cerrarModalAudiencias()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body aud-modal-body">
+
+    <!-- Loading -->
+    <div class="aud-loading" *ngIf="loadingAudiencias">
+      <div class="spinner"></div>
+      <p>Cargando audiencias...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="aud-empty" *ngIf="!loadingAudiencias && audienciasExpediente.length === 0">
+      <i class="bi bi-calendar-x"></i>
+      <p>No hay audiencias registradas para este expediente.</p>
+    </div>
+
+    <!-- Timeline de audiencias -->
+    <div class="aud-timeline" *ngIf="!loadingAudiencias && audienciasExpediente.length > 0">
+      <div class="aud-item" *ngFor="let aud of audienciasExpediente">
+
+        <!-- Línea de tiempo -->
+        <div class="aud-dot" [ngClass]="'aud-dot--' + (aud.estado || '').toLowerCase()"></div>
+
+        <div class="aud-card">
+          <!-- Cabecera -->
+          <div class="aud-card-head">
+            <div class="aud-card-left">
+              <span class="aud-tipo">{{ aud.tipoAudienciaAbreviatura }} — {{ aud.tipoAudienciaDescripcion }}</span>
+              <span class="aud-fecha">
+                <i class="bi bi-calendar3"></i>
+                {{ aud.fecha | date:'dd/MM/yyyy' }}
+                <span *ngIf="aud.hora" class="aud-hora"> · {{ aud.hora }}</span>
+              </span>
+            </div>
+            <span class="aud-badge" [ngClass]="'aud-badge--' + (aud.estado || '').toLowerCase()">
+              {{ labelEstadoAudiencia(aud.estado) }}
+            </span>
+          </div>
+
+          <!-- Tribunal -->
+          <div class="aud-tribunal">
+            <i class="bi bi-building"></i>
+            {{ aud.tribunalClave }} — {{ aud.tribunalNombre }}
+          </div>
+
+          <!-- Abogados asignados -->
+          <div class="aud-abogados" *ngIf="aud.abogados && aud.abogados.length > 0">
+            <i class="bi bi-person-badge"></i>
+            <span *ngFor="let ab of aud.abogados; let last = last">
+              {{ ab.nombreCompleto }}<span *ngIf="ab.esTitular"> ★</span>{{ !last ? ', ' : '' }}
+            </span>
+          </div>
+
+          <!-- Resultado (si está REALIZADA) -->
+          <div class="aud-resultado" *ngIf="aud.estado === 'REALIZADA' && aud.resultado">
+            <div class="aud-resultado-label"><i class="bi bi-check2-circle"></i> Veredicto</div>
+            <p class="aud-resultado-text">{{ aud.resultado }}</p>
+          </div>
+
+          <!-- Anotaciones del abogado -->
+          <div class="aud-notas" *ngIf="aud.notasTipo">
+            <div class="aud-notas-label"><i class="bi bi-journal-text"></i> Anotaciones de seguimiento</div>
+            <p class="aud-notas-text">{{ aud.notasTipo }}</p>
+          </div>
+
+          <!-- Botón registrar resultado (solo si está PROGRAMADA) 
+          <button class="aud-btn-registrar"
+                  *ngIf="puedeRegistrarResultado(aud)"
+                  (click)="abrirRegistroResultadoAudiencia(aud)">
+            <i class="bi bi-pencil-square"></i> Registrar Resultado
+          </button>-->
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Sub-modal: Registrar resultado desde expedientes -->
+<div class="aud-sub-backdrop" *ngIf="modalResultadoVisible" (click)="cerrarModalResultado()"></div>
+
+<div class="aud-sub-modal" *ngIf="modalResultadoVisible" (click)="$event.stopPropagation()">
+  <div class="aud-sub-header">
+    <div class="aud-header-left">
+      <i class="bi bi-pencil-square aud-icon"></i>
+      <div>
+        <h2 class="aud-sub-title">Registrar Resultado</h2>
+        <p class="aud-subtitle">
+          {{ audienciaParaResultado?.tipoAudienciaAbreviatura }} ·
+          {{ audienciaParaResultado?.fecha | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+    </div>
+    <button class="aud-btn-close" (click)="cerrarModalResultado()" [disabled]="guardandoResultado">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="aud-sub-body">
+
+    <div class="aud-alert-info">
+      <i class="bi bi-info-circle-fill"></i>
+      Al guardar, la audiencia pasará a <strong>REALIZADA</strong> y el administrador
+      recibirá una notificación automáticamente.
+    </div>
+
+    <div class="aud-field-group">
+      <label class="aud-field-label">Veredicto Formal <span class="required">*</span></label>
+      <textarea class="aud-field-input aud-field-textarea" rows="4"
+        placeholder="Resultado de la audiencia, resolución del tribunal..."
+        [(ngModel)]="formResultado.resultado"></textarea>
+    </div>
+
+    <div class="aud-field-group">
+      <label class="aud-field-label">
+        <i class="bi bi-journal-text"></i> Anotaciones de Seguimiento
+        <span class="aud-optional">(opcional)</span>
+      </label>
+      <textarea class="aud-field-input aud-field-textarea" rows="4"
+        placeholder="Próximos pasos, estrategia, documentos pendientes..."
+        [(ngModel)]="formResultado.notasTipo"></textarea>
+    </div>
+  </div>
+
+  <div class="aud-sub-footer">
+    <button class="aud-btn-secondary" (click)="cerrarModalResultado()" [disabled]="guardandoResultado">Cancelar</button>
+    <button class="aud-btn-primary" (click)="guardarResultadoDesdeModal()" [disabled]="guardandoResultado">
+      <span class="aud-spinner-sm" *ngIf="guardandoResultado"></span>
+      <i class="bi bi-check2" *ngIf="!guardandoResultado"></i>
+      {{ guardandoResultado ? 'Guardando...' : 'Guardar y Notificar' }}
+    </button>
   </div>
 </div>

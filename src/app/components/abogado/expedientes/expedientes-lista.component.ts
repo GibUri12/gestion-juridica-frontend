@@ -1,20 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ExpedienteService } from '../../../services/expediente.service';
 import { Expediente } from './expediente.model';
 import Swal from 'sweetalert2';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { AuthService } from '../../../services/auth.service';
+import { AudienciaService, Audiencia } from '../../dashboard/audiencias/audiencia.service';
 
 
 @Component({
   selector: 'app-expedientes-lista',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, SidebarComponent],
   templateUrl: './expedientes-lista.component.html',
-  styleUrls: ['./expedientes-lista.component.css']
+  styleUrls: ['./expedientes-lista.component.css', './expedientes-audiencias-modal.css']
 })
+
 export class ExpedientesListaComponent implements OnInit {
   // Variables de Interfaz
   today: Date = new Date();
@@ -31,6 +34,16 @@ export class ExpedientesListaComponent implements OnInit {
   movimientoSeleccionadoDetalle: any = null;
   public usuariosResultados: any[] = [];
   abogadosParaSeleccionar: any[] = [];
+
+  // ── Modal Audiencias del expediente ───────────────────────────────
+  modalAudienciasVisible = false;
+  audienciasExpediente: Audiencia[] = [];
+  loadingAudiencias = false;
+  // Sub-modal de registro de resultado
+  modalResultadoVisible = false;
+  audienciaParaResultado?: Audiencia;
+  formResultado = { resultado: '', notasTipo: '' };
+  guardandoResultado = false;
 
   // Datos y Sugerencias
   expedientes: Expediente[] = [];
@@ -52,7 +65,9 @@ export class ExpedientesListaComponent implements OnInit {
   constructor(
     private expService: ExpedienteService,
     public authService: AuthService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private audienciaService: AudienciaService,
+    private route: ActivatedRoute
   ) {
     // Definir fecha mínima (Hoy + 45 días)
     const hoy = new Date();
@@ -82,10 +97,26 @@ export class ExpedientesListaComponent implements OnInit {
   }
 
   ngOnInit() {
-    
     this.cargarExpedientes();
     this.cargarCatalogoAbogados();
-    
+
+    // Si el Admin llega desde una notificación con queryParam expedienteId
+    this.route.queryParams.subscribe(params => {
+      const expId = params['expedienteId'];
+      const abrir = params['abrirAudiencias'];
+      if (expId && abrir === '1') {
+        // Esperamos a que carguen los expedientes y luego abrimos el modal
+        const intv = setInterval(() => {
+          const found = this.expedientes.find(e => e.id === +expId);
+          if (found) {
+            clearInterval(intv);
+            this.verAudiencias(found);
+          }
+        }, 400);
+        // Timeout de seguridad
+        setTimeout(() => clearInterval(intv), 5000);
+      }
+    });
   }
 
   cargarCatalogoAbogados() {
@@ -391,5 +422,108 @@ export class ExpedientesListaComponent implements OnInit {
       },
       error: (err) => alert('Error al guardar: ' + err.message)
     });
+  }
+
+  // ── Audiencias del expediente ──────────────────────────────
+
+  verAudiencias(exp: Expediente): void {
+    this.expedienteSeleccionado = exp;
+    this.modalAudienciasVisible = true;
+    this.loadingAudiencias = true;
+    this.audienciasExpediente = [];
+
+    this.audienciaService.getAudienciasPorExpediente(exp.id).subscribe({
+      next: data => {
+        this.audienciasExpediente = data;
+        this.loadingAudiencias = false;
+      },
+      error: () => {
+        this.loadingAudiencias = false;
+        Swal.fire('Error', 'No se pudieron cargar las audiencias del expediente.', 'error');
+      }
+    });
+  }
+
+  cerrarModalAudiencias(): void {
+    this.modalAudienciasVisible = false;
+    this.audienciasExpediente = [];
+    this.modalResultadoVisible = false;
+    this.audienciaParaResultado = undefined;
+    this.formResultado = { resultado: '', notasTipo: '' };
+  }
+
+  abrirRegistroResultadoAudiencia(aud: Audiencia): void {
+    this.audienciaParaResultado = aud;
+    this.formResultado = {
+      resultado: aud.resultado ?? '',
+      notasTipo: aud.notasTipo ?? ''
+    };
+    this.modalResultadoVisible = true;
+  }
+
+  cerrarModalResultado(): void {
+    if (this.guardandoResultado) return;
+    this.modalResultadoVisible = false;
+    this.audienciaParaResultado = undefined;
+    this.formResultado = { resultado: '', notasTipo: '' };
+  }
+
+  guardarResultadoDesdeModal(): void {
+    if (!this.audienciaParaResultado?.id) return;
+    if (!this.formResultado.resultado.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Atención', text: 'El veredicto formal es obligatorio.' });
+      return;
+    }
+
+    this.guardandoResultado = true;
+    this.audienciaService.registrarResultado(
+      this.audienciaParaResultado.id,
+      this.formResultado.resultado,
+      this.formResultado.notasTipo
+    ).subscribe({
+      next: (updated) => {
+        this.guardandoResultado = false;
+        // Actualizar en la lista local del modal
+        const idx = this.audienciasExpediente.findIndex(a => a.id === updated.id);
+        if (idx !== -1) this.audienciasExpediente[idx] = { ...this.audienciasExpediente[idx], ...updated };
+        this.cerrarModalResultado();
+        Swal.fire({
+          icon: 'success',
+          title: '¡Resultado registrado!',
+          text: 'La audiencia fue marcada como REALIZADA y el administrador fue notificado.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+      },
+      error: err => {
+        this.guardandoResultado = false;
+        Swal.fire({ icon: 'error', title: 'Error', text: err?.error?.message || 'No se pudo guardar el resultado.' });
+      }
+    });
+  }
+
+  badgeEstadoAudiencia(estado?: string): string {
+    switch (estado) {
+      case 'PROGRAMADA':   return 'badge--programada';
+      case 'REALIZADA':    return 'badge--realizada';
+      case 'CANCELADA':    return 'badge--cancelada';
+      case 'REPROGRAMADA': return 'badge--reprogramada';
+      default: return '';
+    }
+  }
+
+  labelEstadoAudiencia(estado?: string): string {
+    switch (estado) {
+      case 'PROGRAMADA':   return 'Programada';
+      case 'REALIZADA':    return 'Realizada';
+      case 'CANCELADA':    return 'Cancelada';
+      case 'REPROGRAMADA': return 'Reprogramada';
+      default: return '—';
+    }
+  }
+
+  puedeRegistrarResultado(aud: Audiencia): boolean {
+    // El abogado puede registrar si está PROGRAMADA
+    return aud.estado === 'PROGRAMADA';
   }
 }

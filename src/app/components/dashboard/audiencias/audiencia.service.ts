@@ -8,6 +8,7 @@ export interface Audiencia {
   fecha?:                    string;
   hora?:                     string;
   resultado?:                string;
+  notasTipo?:                string;  // Anotaciones de seguimiento del abogado
   
   expedienteId?:             number;
   expedienteNumero?:         string;
@@ -89,8 +90,16 @@ export class AudienciaService {
       { params: new HttpParams().set('estado', estado) });
   }
 
-  registrarResultado(id: number, resultado: string): Observable<Audiencia> {
-    return this.http.patch<Audiencia>(`${this.API}/${id}/resultado`, { resultado });
+  registrarResultado(id: number, resultado: string, notasTipo?: string): Observable<Audiencia> {
+    return this.http.patch<Audiencia>(`${this.API}/${id}/resultado`, { resultado, notasTipo });
+  }
+
+  getMisAudiencias(): Observable<Audiencia[]> {
+    return this.http.get<Audiencia[]>(`${this.API}/mis-audiencias`);
+  }
+
+  getAudienciasPorExpediente(expedienteId: number): Observable<Audiencia[]> {
+    return this.http.get<Audiencia[]>(`${this.API}/por-expediente/${expedienteId}`);
   }
 
   // ── Catálogos ────────────────────────────────────────────────────
