@@ -1,0 +1,196 @@
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Portal del Abogado</p>
+        <h1 class="topbar-title">Mis Audiencias</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username">{{ userName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Cargando audiencias...</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state-full" *ngIf="!loading && audiencias.length === 0">
+        <i class="bi bi-calendar-x"></i>
+        <h3>Sin audiencias asignadas</h3>
+        <p>Cuando el administrador te asigne a una audiencia, aparecerá aquí.</p>
+      </div>
+
+      <!-- Summary bar -->
+      <div class="summary-bar" *ngIf="!loading && audiencias.length > 0">
+        <div class="summary-card">
+          <div class="summary-icon"><i class="bi bi-calendar-event"></i></div>
+          <div>
+            <div class="summary-val">{{ totalAudiencias }}</div>
+            <div class="summary-lbl">Total</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div>
+            <div class="summary-val">{{ totalProgramadas }}</div>
+            <div class="summary-lbl">Programadas</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon summary-icon--green"><i class="bi bi-check2-circle"></i></div>
+          <div>
+            <div class="summary-val">{{ totalRealizadas }}</div>
+            <div class="summary-lbl">Realizadas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de audiencias -->
+      <div class="audiencias-grid" *ngIf="!loading && audiencias.length > 0">
+        <div class="audiencia-card" *ngFor="let aud of audiencias"
+             [class.card--realizada]="aud.estado === 'REALIZADA'"
+             [class.card--cancelada]="aud.estado === 'CANCELADA'">
+
+          <!-- Cabecera de la card -->
+          <div class="card-head">
+            <div class="card-fecha">
+              <i class="bi bi-calendar-event"></i>
+              <span>{{ aud.fecha | date:'dd/MM/yyyy' }}</span>
+              <span class="card-hora" *ngIf="aud.hora">{{ aud.hora }}</span>
+            </div>
+            <span class="badge" [ngClass]="badgeEstado(aud.estado)">
+              {{ labelEstado(aud.estado) }}
+            </span>
+          </div>
+
+          <!-- Expediente -->
+          <div class="card-expediente">
+            <i class="bi bi-folder2-open"></i>
+            <div>
+              <span class="exp-numero">{{ aud.expedienteNumero }}</span>
+              <span class="exp-partes">{{ aud.clienteNombre }} vs {{ aud.empresaNombre }}</span>
+            </div>
+          </div>
+
+          <!-- Tipo + Tribunal -->
+          <div class="card-meta">
+            <div class="meta-item">
+              <i class="bi bi-tag"></i>
+              <span>{{ aud.tipoAudienciaAbreviatura }} — {{ aud.tipoAudienciaDescripcion }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-building"></i>
+              <span>{{ aud.tribunalClave }} — {{ aud.tribunalNombre }}</span>
+            </div>
+          </div>
+
+          <!-- Resultado (si ya está realizada) -->
+          <div class="card-resultado" *ngIf="aud.estado === 'REALIZADA' && aud.resultado">
+            <div class="resultado-label"><i class="bi bi-check2-circle"></i> Veredicto</div>
+            <p class="resultado-text">{{ aud.resultado }}</p>
+            <div *ngIf="aud.notasTipo" class="notas-section">
+              <div class="notas-label"><i class="bi bi-journal-text"></i> Anotaciones</div>
+              <p class="notas-text">{{ aud.notasTipo }}</p>
+            </div>
+          </div>
+
+          <!-- Acción -->
+          <div class="card-footer">
+            <button class="btn-registrar"
+                    *ngIf="esProgramada(aud)"
+                    (click)="abrirRegistroResultado(aud)">
+              <i class="bi bi-pencil-square"></i> Registrar Resultado
+            </button>
+            <span class="btn-completado" *ngIf="aud.estado === 'REALIZADA'">
+              <i class="bi bi-check-circle-fill"></i> Resultado registrado
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Modal de Registro de Resultado
+════════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="modalResultadoVisible" (click)="cerrarModalResultado()"></div>
+
+<div class="modal modal-resultado" *ngIf="modalResultadoVisible">
+  <div class="modal-header">
+    <div class="modal-header-left">
+      <i class="bi bi-pencil-square modal-icon"></i>
+      <div>
+        <h2 class="modal-title">Registrar Resultado</h2>
+        <p class="modal-subtitle">
+          {{ audienciaSeleccionada?.expedienteNumero }} •
+          {{ audienciaSeleccionada?.fecha | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+    </div>
+    <button class="modal-close" (click)="cerrarModalResultado()" [disabled]="guardando">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="alert-info">
+      <i class="bi bi-info-circle-fill"></i>
+      Al guardar, la audiencia pasará a estado <strong>REALIZADA</strong> y el administrador
+      recibirá una notificación automáticamente.
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">
+        Veredicto Formal <span class="required">*</span>
+      </label>
+      <textarea
+        class="field-input field-textarea"
+        rows="4"
+        placeholder="Describe el resultado de la audiencia, resolución del tribunal, etc."
+        [(ngModel)]="formResultado.resultado"
+      ></textarea>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">
+        <i class="bi bi-journal-text"></i> Anotaciones de Seguimiento
+        <span class="optional-label">(opcional)</span>
+      </label>
+      <textarea
+        class="field-input field-textarea"
+        rows="4"
+        placeholder="Próximos pasos, observaciones, estrategias, documentos pendientes..."
+        [(ngModel)]="formResultado.notasTipo"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn-secondary" (click)="cerrarModalResultado()" [disabled]="guardando">
+      Cancelar
+    </button>
+    <button class="btn-primary" (click)="guardarResultado()" [disabled]="guardando">
+      <span *ngIf="guardando">
+        <span class="spinner-sm"></span> Guardando...
+      </span>
+      <span *ngIf="!guardando">
+        <i class="bi bi-check2"></i> Guardar y Notificar
+      </span>
+    </button>
+  </div>
+</div>

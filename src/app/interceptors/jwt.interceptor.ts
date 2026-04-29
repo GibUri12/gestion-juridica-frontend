@@ -23,9 +23,14 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (error.status === 403) {
         // Acceso denegado → redirigir al home del rol
-        const role = localStorage.getItem('role');
-        const home = getHomePath(role);
-        router.navigate([home]);
+        // EXCEPCIÓN: No redirigir si es una petición de notificaciones (polling del sidebar)
+        // para evitar redireccionamientos involuntarios al navegar
+        const isNotifRequest = req.url.includes('/api/notificaciones');
+        if (!isNotifRequest) {
+          const role = localStorage.getItem('role');
+          const home = getHomePath(role);
+          router.navigate([home]);
+        }
       }
 
       return throwError(() => error);

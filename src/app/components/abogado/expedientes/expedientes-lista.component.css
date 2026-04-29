@@ -30,35 +30,14 @@
     color: #007bff;
 }
 /* ── Topbar (reutilizado del dashboard) ── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
-  height: 64px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-soft);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-  gap: 16px;
-}
-.topbar-left  { display: flex; flex-direction: column; justify-content: center; }
-.topbar-eyebrow {
-  font-size: 0.55rem; font-weight: 700;
-  letter-spacing: 3.5px; text-transform: uppercase;
-  color: var(--gold); margin: 0; line-height: 1;
-}
-.topbar-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem; font-weight: 500;
-  color: var(--text-primary); margin: 0; line-height: 1.2;
-}
-.topbar-right  { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-.topbar-date   { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 28px; height: 64px; background: var(--bg-card); border-bottom: 1px solid var(--border-soft); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.05); gap: 16px; }
+.topbar-left { display: flex; flex-direction: column; justify-content: center; }
+.topbar-eyebrow { font-size: 0.55rem; font-weight: 700; letter-spacing: 3.5px; text-transform: uppercase; color: var(--gold); margin: 0; line-height: 1; }
+.topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 500; color: var(--text-primary); margin: 0; line-height: 1.2; }
+.topbar-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.topbar-date  { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
 .topbar-date i { color: var(--gold); }
-.topbar-user   { display: flex; align-items: center; gap: 9px; padding: 6px 12px 6px 6px; background: var(--bg-hover); border: 1px solid var(--border-soft); border-radius: 24px; }
+.topbar-user  { display: flex; align-items: center; gap: 9px; padding: 6px 12px 6px 6px; background: var(--bg-hover); border: 1px solid var(--border-soft); border-radius: 24px; }
 .topbar-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--gold-muted); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--gold); }
 .topbar-username { font-size: 0.78rem; font-weight: 500; color: var(--text-primary); }
 
@@ -530,37 +509,44 @@
 .action-btn:hover { transform: translateY(-2px); filter: brightness(0.9); }
 
 /* ════════════════════════════════════════
-   HEADER COMPARTIDO (Detalles + Historial)
+   HEADER COMPARTIDO — Detalles + Historial
+   Mismo estilo que el modal Editar Expediente
    ════════════════════════════════════════ */
 .header-history {
-  color: #ffffff;
-  border-bottom: 3px solid var(--gold);
-  padding: 1.2rem 1.5rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 20px 24px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Montserrat', sans-serif;
+  flex-shrink: 0;
 }
 
 .header-history .modal-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 500;
   margin: 0;
-  color: var(--gold-light);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+.header-history .modal-title i { color: var(--gold); font-size: 1.1rem; }
 
+/* Botón cerrar — igual al modal-close genérico */
 .btn-close-custom {
-  background: transparent;
+  width: 32px; height: 32px;
+  border-radius: 6px;
   border: none;
-  color: var(--text-muted);
-  font-size: 1.4rem;
+  background: transparent;
   cursor: pointer;
-  transition: color 0.2s;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
 }
-.btn-close-custom:hover {
-  color: var(--gold);
-}
+.btn-close-custom:hover { background: var(--bg-hover); color: var(--text-primary); }
 
 /* ════════════════════════════════════════
    MODAL DETALLES DEL EXPEDIENTE
@@ -799,20 +785,22 @@
   box-shadow: var(--shadow-hover);
 }
 
-/* Header del overlay */
+/* Header del overlay — mismo estilo que Editar Expediente */
 .modal-detail-content .modal-header {
-  background-color: var(--text-primary);
-  color: #ffffff;
-  border-bottom: 3px solid var(--gold);
-  padding: 1rem 1.5rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 20px 24px 16px;
 }
 
 .modal-detail-content .modal-header h5 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 500;
-  color: var(--gold-light);
+  color: var(--text-primary);
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Meta del movimiento */
