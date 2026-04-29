@@ -2,7 +2,8 @@ import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
+import { ExpedienteService } from '../../services/expediente.service'; // Asegúrate de la ruta correcta
+import { Expediente } from '../abogado/expedientes/expediente.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,26 +17,66 @@ export class DashboardComponent implements OnInit {
   userRole: string | null = '';
   today = new Date();
   
-  // Estado para el sidebar en móvil
+  // Variables para datos
+  expedientesRecientes: Expediente[] = [];
+  totalActivos: number = 0;
+  totalClientes: number = 0;
+  proximasAudiencias: Expediente[] = [];
+  loading: boolean = true;
+
   isSidebarActive = false;
 
-  constructor(private eRef: ElementRef) {}
+  constructor(
+    private eRef: ElementRef,
+    private expService: ExpedienteService // Inyectamos el servicio
+  ) {}
 
   ngOnInit() {
     this.userName = localStorage.getItem('username');
     this.userRole = localStorage.getItem('role');
+    this.cargarDatosDashboard();
   }
 
-  // Método para el botón sandwich
+  cargarDatosDashboard() {
+    this.loading = true;
+    this.expService.getAll().subscribe({
+      next: (data) => {
+        // 1. Calcular Expedientes Activos
+        this.totalActivos = data.filter(e => e.estado === 'ACTIVO').length;
+
+        // 2. Obtener Expedientes Recientes (últimos 5 creados)
+        // Asumiendo que el id o la fecha indican el orden
+        this.expedientesRecientes = [...data]
+          .sort((a, b) => b.id - a.id)
+          .slice(0, 5);
+
+        // 3. Obtener Clientes Únicos
+        const clientesIds = new Set(data.map(e => e.cliente?.id));
+        this.totalClientes = clientesIds.size;
+
+        // 4. Próximas Audiencias (Expedientes que tienen fecha de audiencia futura)
+        const ahora = new Date();
+        this.proximasAudiencias = data
+          .filter(e => e.proximaAudiencia && new Date(e.proximaAudiencia) >= ahora)
+          .sort((a, b) => new Date(a.proximaAudiencia!).getTime() - new Date(b.proximaAudiencia!).getTime())
+          .slice(0, 4);
+
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error("Error cargando dashboard", err);
+        this.loading = false;
+      }
+    });
+  }
+
   toggleSidebar(event: Event) {
-    event.stopPropagation(); // Evita que el clic llegue al document
+    event.stopPropagation();
     this.isSidebarActive = !this.isSidebarActive;
   }
 
-  // Cerrar al hacer clic fuera
   @HostListener('document:click', ['$event'])
   clickOut(event: Event) {
-    // Si el clic NO está dentro de este componente, cerramos el sidebar
     if (!this.eRef.nativeElement.contains(event.target)) {
       this.isSidebarActive = false;
     }

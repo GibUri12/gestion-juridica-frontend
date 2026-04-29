@@ -1,0 +1,259 @@
+<!-- usuarios.component.html -->
+<div class="app-shell">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="topbar-eyebrow">Administración</p>
+        <h1 class="topbar-title">Gestión de Usuarios</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-primary-siga" (click)="abrirModalCrear()">
+          <i class="bi bi-person-plus"></i> Nuevo Usuario
+        </button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Toast de éxito -->
+      <div class="toast-siga" *ngIf="successMsg">
+        <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
+      </div>
+
+      <!-- Filtros -->
+      <section class="filter-bar">
+        <div class="filter-search">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar por nombre, usuario o email..."
+            [(ngModel)]="filtroTexto"
+            (input)="aplicarFiltros()">
+        </div>
+
+        <select [(ngModel)]="filtroRol" (change)="aplicarFiltros()">
+          <option value="">Todos los roles</option>
+          <option *ngFor="let r of roles" [value]="r">{{ rolLabel(r) }}</option>
+        </select>
+
+        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="inactivo">Inactivos</option>
+        </select>
+
+        <button class="btn-clear" (click)="limpiarFiltros()" title="Limpiar filtros">
+          <i class="bi bi-x-circle"></i>
+        </button>
+      </section>
+
+      <!-- Tabla -->
+      <section class="panel">
+        <div class="table-wrap">
+
+          <div *ngIf="loading" class="empty-state">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <p>Cargando usuarios...</p>
+          </div>
+
+          <table class="data-table" *ngIf="!loading && usuariosFiltrados.length > 0">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Clave</th>
+                <th>Estado</th>
+                <th>Desde</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of usuariosFiltrados">
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar-sm">{{ u.nombreCompleto.charAt(0).toUpperCase() }}</div>
+                    <span>{{ u.nombreCompleto }}</span>
+                  </div>
+                </td>
+                <td><code>{{ u.username }}</code></td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span class="rol-badge rol-{{ u.rol.toLowerCase() }}">
+                    {{ rolLabel(u.rol) }}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="u.claveAbogado" class="badge-expediente">{{ u.claveAbogado }}</span>
+                  <span *ngIf="!u.claveAbogado" class="text-muted-soft">—</span>
+                </td>
+                <td>
+                  <span class="estado-badge" [class.estado-activo]="u.activo" [class.estado-inactivo]="!u.activo">
+                    {{ u.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td>{{ u.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td class="td-actions">
+                  <div class="action-group">
+                    <button class="action-btn action-edit" (click)="abrirModalEditar(u)" title="Editar">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="action-btn action-password" (click)="abrirModalPassword(u)" title="Cambiar contraseña">
+                      <i class="bi bi-key"></i>
+                    </button>
+                    <button
+                      class="action-btn"
+                      [class.action-deactivate]="u.activo"
+                      [class.action-activate]="!u.activo"
+                      (click)="toggleActivo(u)"
+                      [title]="u.activo ? 'Desactivar' : 'Activar'">
+                      <i class="bi" [class.bi-toggle-on]="u.activo" [class.bi-toggle-off]="!u.activo"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="!loading && usuariosFiltrados.length === 0" class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>No se encontraron usuarios</p>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL CREAR / EDITAR
+     ═══════════════════════════════════════ -->
+<div class="modal-overlay-detail" *ngIf="modalFormVisible">
+  <div class="modal-detail-content modal-md">
+
+    <div class="modal-header header-history">
+      <h2 class="modal-title">
+        <i class="bi" [class.bi-person-plus]="!modoEdicion" [class.bi-pencil-square]="modoEdicion"></i>
+        {{ modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h2>
+      <button class="btn-close-custom" (click)="cerrarModalForm()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body p-4">
+
+      <div class="alert-error" *ngIf="errorForm">
+        <i class="bi bi-exclamation-triangle"></i> {{ errorForm }}
+      </div>
+
+      <div class="info-container">
+
+        <div class="info-box full-width">
+          <label>Nombre Completo *</label>
+          <input type="text" [(ngModel)]="form.nombreCompleto" placeholder="Ej. Juan Pérez López">
+        </div>
+
+        <div class="info-box">
+          <label>Username *</label>
+          <input type="text" [(ngModel)]="form.username" placeholder="Ej. jperez">
+        </div>
+
+        <div class="info-box">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="form.email" placeholder="correo@despacho.com">
+        </div>
+
+        <div class="info-box">
+          <label>Rol *</label>
+          <select [(ngModel)]="form.rol">
+            <option *ngFor="let r of roles" [value]="r">{{ rolLabel(r) }}</option>
+          </select>
+        </div>
+
+        <div class="info-box">
+          <label>Clave Abogado</label>
+          <input type="text" [(ngModel)]="form.claveAbogado" placeholder="Ej. JR01" maxlength="5">
+        </div>
+
+        <div class="info-box full-width" *ngIf="!modoEdicion">
+          <label>Contraseña *</label>
+          <input type="password" [(ngModel)]="form.password" placeholder="Mínimo 6 caracteres">
+        </div>
+
+        <div class="info-box">
+          <label>Estado</label>
+          <div class="toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="form.activo">
+              <span class="toggle-slider"></span>
+            </label>
+            <span>{{ form.activo ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarModalForm()">Cancelar</button>
+      <button class="btn-save" (click)="guardar()">
+        <i class="bi bi-check-lg"></i>
+        {{ modoEdicion ? 'Guardar Cambios' : 'Crear Usuario' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL CAMBIAR CONTRASEÑA
+     ═══════════════════════════════════════ -->
+<div class="modal-overlay-detail" *ngIf="modalPasswordVisible">
+  <div class="modal-detail-content modal-sm">
+
+    <div class="modal-header header-history">
+      <h2 class="modal-title">
+        <i class="bi bi-key"></i> Cambiar Contraseña
+      </h2>
+      <button class="btn-close-custom" (click)="cerrarModalPassword()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body p-4">
+      <p class="text-muted-soft mb-3">
+        Usuario: <strong>{{ usuarioSeleccionado?.username }}</strong>
+      </p>
+
+      <div class="alert-error" *ngIf="errorPassword">
+        <i class="bi bi-exclamation-triangle"></i> {{ errorPassword }}
+      </div>
+
+      <div class="info-container">
+        <div class="info-box full-width">
+          <label>Nueva Contraseña</label>
+          <input type="password" [(ngModel)]="nuevaPassword" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="info-box full-width">
+          <label>Confirmar Contraseña</label>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="Repite la contraseña">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarModalPassword()">Cancelar</button>
+      <button class="btn-save" (click)="cambiarPassword()">
+        <i class="bi bi-check-lg"></i> Actualizar
+      </button>
+    </div>
+
+  </div>
+</div>

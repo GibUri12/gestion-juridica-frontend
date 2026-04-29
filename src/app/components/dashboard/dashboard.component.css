@@ -504,3 +504,79 @@
   .kpi-grid { grid-template-columns: 1fr; }
   .quick-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Estado del expediente ── */
+.estado-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.estado-activo   { background: #e8f5e9; color: #388e3c; }
+.estado-cerrado  { background: #fce4ec; color: #c62828; }
+.estado-pendiente { background: #fff3e0; color: #f57c00; }
+.estado-archivado { background: var(--gold-muted); color: var(--gold); }
+
+/* ── Agenda items ── */
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.2s;
+}
+
+.agenda-item:last-child { border-bottom: none; }
+
+.agenda-item:hover { background: var(--bg-hover); }
+
+.agenda-date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  background: var(--gold-muted);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  line-height: 1;
+}
+
+.agenda-day {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.agenda-month {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.agenda-info { flex: 1; min-width: 0; }
+
+.agenda-exp {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-client {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

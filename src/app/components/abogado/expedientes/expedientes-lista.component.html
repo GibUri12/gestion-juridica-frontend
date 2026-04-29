@@ -283,40 +283,53 @@
       </div>
     </div>
 
-    <div class="field-group" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
-      <label class="field-label"><i class="bi bi-people-fill"></i> ASIGNAR ABOGADOS AL CASO</label>
-      
-      <div class="search-wrap" style="position: relative;" *ngIf="authService.getRole() !== 'ROLE_ABOGADO'">
+  <div class="field-group" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+    <label class="field-label" style="color: #2c3e50; font-weight: 600;">
+      <i class="bi bi-people-fill"></i> ASIGNAR ABOGADOS AL CASO
+    </label>
+    
+    <div class="search-wrap" style="position: relative;" *ngIf="authService.getRole() !== 'ROLE_ABOGADO'">
+      <div class="input-group">
         <input
-          class="field-input"
+          class="field-input search-abogado-input"
           type="text"
-          placeholder="Buscar abogado para asignar..."
+          placeholder="Escriba el nombre del abogado..."
           #txtBusquedaAbogado
           (input)="buscarUsuarios(txtBusquedaAbogado.value)"
           autocomplete="off"
         />
-        <ul class="autocomplete-results" *ngIf="usuariosResultados.length > 0">
-          <li *ngFor="let u of usuariosResultados" (click)="asignarNuevoAbogado(u.id); usuariosResultados = []; txtBusquedaAbogado.value = ''">
-            <i class="bi bi-person-plus me-2"></i> {{ u.nombreCompleto }}
-          </li>
-        </ul>
+      </div>
+      
+      <ul class="autocomplete-results" *ngIf="usuariosResultados.length > 0">
+        <li *ngFor="let u of usuariosResultados" 
+            (click)="asignarNuevoAbogado(u.id); usuariosResultados = []; txtBusquedaAbogado.value = ''"
+            style="display: flex; align-items: center; justify-content: space-between;">
+          <span><i class="bi bi-person-plus me-2" style="color: #27ae60;"></i> {{ u.nombreCompleto }}</span>
+          <small class="text-muted" style="font-size: 0.7rem;">{{ u.username }}</small>
+        </li>
+      </ul>
+    </div>
+
+    <div class="abogados-container">
+      <div class="abogado-badge animate__animated animate__fadeIn" *ngFor="let abogado of abogadosAsignados">
+        <i class="bi bi-person-badge"></i>
+        {{ abogado.nombreCompleto }}
+        <button type="button" class="btn-remove-abogado" 
+                title="Remover del caso"
+                *ngIf="authService.getRole() !== 'ROLE_ABOGADO'"
+                (click)="removerAbogado(expedienteSeleccionado?.id!, abogado.id)">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
       </div>
 
-      <div class="d-flex flex-wrap gap-2 mt-2">
-        <div class="abogado-badge" *ngFor="let abogado of abogadosAsignados">
-          <i class="bi bi-person-badge"></i>
-          {{ abogado.nombreCompleto }}
-          <button class="btn-remove-abogado" 
-                  *ngIf="authService.getRole() !== 'ROLE_ABOGADO'"
-                  (click)="removerAbogado(expedienteSeleccionado?.id!, abogado.id)">
-            <i class="bi bi-x-circle-fill"></i>
-          </button>
-        </div>
-        <span class="text-muted" *ngIf="abogadosAsignados.length === 0" style="font-size: 0.85rem; font-style: italic;">
-          No hay abogados asignados adicionales.
+      <div *ngIf="abogadosAsignados.length === 0" 
+          style="width: 100%; padding: 10px; background: #f9f9f9; border-radius: 8px; border: 1px dashed #ccc; text-align: center;">
+        <span class="text-muted" style="font-size: 0.85rem; font-style: italic;">
+          <i class="bi bi-info-circle me-1"></i> No hay abogados asignados adicionales a este expediente.
         </span>
       </div>
     </div>
+  </div>
 
     <div class="field-group">
       <label class="field-label">Anotaciones Generales</label>
@@ -334,7 +347,7 @@
 
 <div class="modal modal-lg" *ngIf="modalDetallesVisible">
   <div class="modal-header header-history">
-    <h2 class="modal-title" >
+    <h2 class="modal-title">
       <i class="bi bi-file-earmark-ruled me-2"></i> 
       Detalles del Expediente
     </h2>
@@ -376,6 +389,29 @@
       <div class="info-box full-width">
         <label>Anotaciones Generales</label>
         <p class="text-content italic">{{expedienteSeleccionado?.anotacion || 'Sin anotaciones adicionales.'}}</p>
+      </div>
+    </div>
+
+    <div class="section-header mt-4 mb-3" style="color: #2c3e50; border-bottom: 2px solid #e9ecef;">
+      <i class="bi bi-people-fill"></i> Abogados Asignados al Caso
+    </div>
+
+    <div class="abogados-container d-flex flex-wrap gap-2">
+      <div class="abogado-badge" style="background-color: #e8f4fd; border-color: #3498db;">
+        <i class="bi bi-person-check-fill text-primary"></i>
+        <span class="ms-1">{{expedienteSeleccionado?.createdBy?.nombreCompleto}}</span>
+        <small class="text-muted ms-2" style="font-size: 0.7rem;">(Creador)</small>
+      </div>
+
+      <div class="abogado-badge" *ngFor="let abogado of abogadosAsignados">
+        <i class="bi bi-person-badge"></i>
+        {{ abogado.nombreCompleto }}
+      </div>
+
+      <div *ngIf="abogadosAsignados.length === 0" class="w-100 mt-1">
+        <span class="text-muted" style="font-size: 0.85rem; font-style: italic;">
+          No hay abogados colaboradores adicionales asignados.
+        </span>
       </div>
     </div>
 

@@ -99,8 +99,9 @@ export class ExpedientesListaComponent implements OnInit {
     this.loading = true;
     this.expService.getAll().subscribe({
       next: (data) => {
-        this.expedientes = data;
-        this.expedientesFiltrados = data;
+        // Mapeamos los expedientes para asegurarnos de que cada uno tenga su espacio de abogados
+        this.expedientes = data.map(e => ({ ...e, abogados: [] }));
+        this.expedientesFiltrados = this.expedientes;
         this.loading = false;
       },
       error: () => {
@@ -175,6 +176,8 @@ export class ExpedientesListaComponent implements OnInit {
   abrirModalEditar(exp: Expediente) {
     this.modoEdicion = true;
     this.expedienteSeleccionado = exp;
+    this.abogadosAsignados = [];
+    this.cargarAbogados(exp.id);
     this.completarForm.patchValue({
       nombreJunta: exp.junta?.nombre || '',
       numeroExpediente: exp.numeroExpediente,
@@ -274,6 +277,7 @@ export class ExpedientesListaComponent implements OnInit {
     // 2. VER DETALLES
   verDetalles(exp: Expediente) {
     this.expedienteSeleccionado = exp;
+    this.cargarAbogados(exp.id);
     this.modalDetallesVisible = true;
   }
 
@@ -308,24 +312,27 @@ export class ExpedientesListaComponent implements OnInit {
   }
 
   cargarAbogados(idExpediente: number) {
-    this.expService.getAbogadosAsignados(idExpediente).subscribe(data => {
-      this.abogadosAsignados = data;
+    this.expService.getAbogadosAsignados(idExpediente).subscribe({
+      next: (data) => {
+        this.abogadosAsignados = data;
+      },
+      error: (err) => {
+        console.error("Error al cargar abogados del expediente:", err);
+        this.abogadosAsignados = [];
+      }
     });
   }
 
   asignarNuevoAbogado(usuarioId: number) {
-    // 1. Verificamos si existe el expediente de forma segura
-    if (!this.expedienteSeleccionado?.id) {
-      console.warn("No hay un expediente seleccionado para asignar.");
-      return;
-    }
+    if (!this.expedienteSeleccionado?.id) return;
 
-    // 2. Usamos el '!' al final si ya validamos arriba que existe
     this.expService.asignarAbogado(this.expedienteSeleccionado.id, usuarioId).subscribe({
       next: () => {
-        this.cargarAbogados(this.expedienteSeleccionado!.id); // Refrescar lista
+        // Esto refresca la lista del modal actual
+        this.cargarAbogados(this.expedienteSeleccionado!.id); 
+        this.usuariosResultados = []; // Limpiar buscador
       },
-      error: (err) => console.error("Error al asignar:", err)
+      error: (err) => Swal.fire('Error', 'No se pudo asignar el abogado', 'error')
     });
   }
 
@@ -366,15 +373,37 @@ export class ExpedientesListaComponent implements OnInit {
   }
 
   removerAbogado(expedienteId: number, usuarioId: number) {
-    if (confirm('¿Está seguro de remover a este abogado del caso?')) {
-      this.expService.removerAbogado(expedienteId, usuarioId).subscribe({
-        next: () => {
-          // Refrescar la lista local
-          this.abogadosAsignados = this.abogadosAsignados.filter(a => a.id !== usuarioId);
-        },
-        error: (err) => console.error(err)
-      });
-    }
+    Swal.fire({
+      title: '¿Remover abogado?',
+      text: "El abogado ya no tendrá acceso para editar este expediente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33', // Color rojo para acciones de eliminar
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, remover',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.expService.removerAbogado(expedienteId, usuarioId).subscribe({
+          next: () => {
+            // Refrescar la lista local filtrando el que quitamos
+            this.abogadosAsignados = this.abogadosAsignados.filter(a => a.id !== usuarioId);
+            
+            Swal.fire({
+              title: 'Removido',
+              text: 'El abogado ha sido desvinculado del caso.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire('Error', 'No se pudo completar la acción', 'error');
+          }
+        });
+      }
+    });
   }
 
   guardarCambiosAbogado() {
