@@ -23,7 +23,7 @@ export const routes: Routes = [
       {
         path: 'expedientes',
         loadComponent: () =>
-          import('./components/abogado/expedientes/expedientes-lista.component')
+          import('./components/dashboard/expedientes/expedientes-lista.component')
             .then(m => m.ExpedientesListaComponent)
       },
       {
@@ -35,7 +35,7 @@ export const routes: Routes = [
       {
       path: 'usuarios',
         loadComponent: () =>
-          import('./components/abogado/usuarios/usuarios.component')
+          import('./components/dashboard/usuarios/usuarios.component')
             .then(m => m.UsuariosComponent)
       },
       {
@@ -59,12 +59,6 @@ export const routes: Routes = [
             .then(m => m.AbogadoDashboardComponent)
       },
       {
-        path: 'expedientes',
-        loadComponent: () =>
-          import('./components/abogado/expedientes/expedientes-lista.component')
-            .then(m => m.ExpedientesListaComponent)
-      },
-      {
         path: 'audiencias',
         loadComponent: () =>
           import('./components/abogado/audiencias/mis-audiencias.component')
@@ -76,7 +70,16 @@ export const routes: Routes = [
           import('./components/abogado/notificaciones/notificaciones-abogado.component')
             .then(m => m.NotificacionesAbogadoComponent)
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { 
+        path: '', redirectTo: 'dashboard', pathMatch: 'full' 
+      },
+
+      {
+        path: 'expedientes',
+        loadComponent: () =>
+          import('./components/abogado/expedientes/mis-expedientes.component')
+            .then(m => m.MisExpedientesComponent)
+      }
     ]
   },
 

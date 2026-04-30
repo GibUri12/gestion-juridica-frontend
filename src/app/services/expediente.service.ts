@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Expediente } from '../components/abogado/expedientes/expediente.model'; 
+import { Expediente } from '../components/dashboard/expedientes/expediente.model'; 
 
 @Injectable({ providedIn: 'root' })
 export class ExpedienteService {
@@ -63,6 +63,14 @@ export class ExpedienteService {
   // Cambiamos el método anterior por este
   getAbogadosDisponibles(): Observable<any[]> {
     return this.http.get<any[]>(`http://localhost:8080/api/usuarios/abogados`);
+  }
+
+  actualizarPostAudiencia(id: number, payload: {
+    anotacion: string;
+    amparo: string;
+    proximaAudiencia: string | null;
+  }): Observable<Expediente> {
+    return this.http.patch<Expediente>(`${this.apiUrl}/${id}/post-audiencia`, payload);
   }
 
 }

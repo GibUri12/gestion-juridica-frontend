@@ -27,42 +27,67 @@
 
         <div class="kpi-card accent-blue">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-blue"><i class="bi bi-folder2-open"></i></div>
+            <div class="kpi-icon-wrap kpi-blue">
+              <i class="bi bi-folder2-open"></i>
+            </div>
             <span class="kpi-trend kpi-trend--up">Asignados</span>
           </div>
-          <p class="kpi-value">—</p>
+          <p class="kpi-value">
+            <span *ngIf="loading">—</span>
+            <span *ngIf="!loading">{{ totalExpedientes }}</span>
+          </p>
           <p class="kpi-label">Mis Expedientes</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--blue" style="width:65%"></div></div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill kpi-bar--blue" style="width:65%"></div>
+          </div>
         </div>
 
         <div class="kpi-card accent-gold">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-gold"><i class="bi bi-calendar-event"></i></div>
+            <div class="kpi-icon-wrap kpi-gold">
+              <i class="bi bi-calendar-event"></i>
+            </div>
             <span class="kpi-trend kpi-trend--neutral">Próximas</span>
           </div>
-          <p class="kpi-value">—</p>
+          <p class="kpi-value">
+            <span *ngIf="loading">—</span>
+            <span *ngIf="!loading">{{ totalProximas }}</span>
+          </p>
           <p class="kpi-label">Audiencias Pendientes</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--gold" style="width:40%"></div></div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill kpi-bar--gold" style="width:40%"></div>
+          </div>
         </div>
 
         <div class="kpi-card accent-teal">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-teal"><i class="bi bi-check2-circle"></i></div>
+            <div class="kpi-icon-wrap kpi-teal">
+              <i class="bi bi-check2-circle"></i>
+            </div>
             <span class="kpi-trend kpi-trend--up">Este mes</span>
           </div>
-          <p class="kpi-value">—</p>
+          <p class="kpi-value">
+            <span *ngIf="loading">—</span>
+            <span *ngIf="!loading">{{ totalRealizadas }}</span>
+          </p>
           <p class="kpi-label">Audiencias Realizadas</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--teal" style="width:55%"></div></div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill kpi-bar--teal" style="width:55%"></div>
+          </div>
         </div>
 
         <div class="kpi-card accent-rose">
           <div class="kpi-top">
-            <div class="kpi-icon-wrap kpi-rose"><i class="bi bi-bell-fill"></i></div>
+            <div class="kpi-icon-wrap kpi-rose">
+              <i class="bi bi-bell-fill"></i>
+            </div>
             <span class="kpi-trend kpi-trend--alert">Sin leer</span>
           </div>
           <p class="kpi-value">—</p>
           <p class="kpi-label">Notificaciones</p>
-          <div class="kpi-bar"><div class="kpi-bar-fill kpi-bar--rose" style="width:25%"></div></div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill kpi-bar--rose" style="width:25%"></div>
+          </div>
         </div>
 
       </section>
@@ -70,18 +95,31 @@
       <!-- Contenido -->
       <div class="content-grid">
 
+        <!-- Expedientes Activos -->
         <section class="panel">
           <div class="panel-header">
             <div class="panel-title-wrap">
               <div class="panel-ornament"></div>
               <h2 class="panel-title">Mis Expedientes Activos</h2>
             </div>
-            <a class="panel-action" routerLink="/abogado/expedientes">
+            <a class="panel-action"
+               routerLink="/abogado/expedientes/">
               Ver todos <i class="bi bi-arrow-right"></i>
             </a>
           </div>
+
           <div class="table-wrap">
-            <table class="data-table">
+
+            <!-- Loading -->
+            <div *ngIf="loading" class="empty-state">
+              <div class="spinner-border spinner-border-sm text-secondary"
+                   role="status"></div>
+              <p>Cargando expedientes...</p>
+            </div>
+
+            <!-- Tabla -->
+            <table class="data-table"
+                   *ngIf="!loading && expedientesActivos.length > 0">
               <thead>
                 <tr>
                   <th>Expediente</th>
@@ -91,19 +129,43 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="4">
-                    <div class="empty-state">
-                      <i class="bi bi-folder2"></i>
-                      <p>No tienes expedientes asignados aún</p>
-                    </div>
+                <tr *ngFor="let exp of expedientesActivos">
+                  <td>
+                    <span class="badge-expediente">
+                      {{ exp.numeroExpediente }}
+                    </span>
+                  </td>
+                  <td>
+                    <i class="bi bi-person me-1"
+                       style="color:var(--text-muted)"></i>
+                    {{ exp.cliente.nombreCompleto }}
+                  </td>
+                  <td>
+                    <i class="bi bi-building me-1"
+                       style="color:var(--text-muted)"></i>
+                    {{ exp.empresa.nombreCompleto }}
+                  </td>
+                  <td>
+                    <span class="badge-owner"
+                          [ngClass]="estadoClass(exp.estado)">
+                      {{ estadoLabel(exp.estado) }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
             </table>
+
+            <!-- Vacío -->
+            <div *ngIf="!loading && expedientesActivos.length === 0"
+                 class="empty-state">
+              <i class="bi bi-folder2"></i>
+              <p>No tienes expedientes activos aún</p>
+            </div>
+
           </div>
         </section>
 
+        <!-- Próximas Audiencias -->
         <section class="panel">
           <div class="panel-header">
             <div class="panel-title-wrap">
@@ -111,11 +173,48 @@
               <h2 class="panel-title">Próximas Audiencias</h2>
             </div>
           </div>
+
           <div class="agenda-list">
-            <div class="agenda-empty">
+
+            <!-- Loading -->
+            <div *ngIf="loading" class="agenda-empty">
+              <div class="spinner-border spinner-border-sm text-secondary"
+                   role="status"></div>
+              <p>Cargando...</p>
+            </div>
+
+            <!-- Items -->
+            <div class="agenda-item"
+                 *ngFor="let aud of proximasAudiencias">
+              <div class="agenda-date-block">
+                <span class="agenda-day">
+                  {{ aud.proximaAudiencia | date:'dd' }}
+                </span>
+                <span class="agenda-month">
+                  {{ aud.proximaAudiencia | date:'MMM' : '' : 'es' }}
+                </span>
+              </div>
+              <div class="agenda-info">
+                <p class="agenda-exp">
+                  <i class="bi bi-folder2 me-1"></i>
+                  Exp. {{ aud.numeroExpediente }}
+                  <span *ngIf="aud.sufijoExpediente">
+                    {{ aud.sufijoExpediente }}
+                  </span>
+                </p>
+                <p class="agenda-client">
+                  {{ aud.cliente.nombreCompleto }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Vacío -->
+            <div *ngIf="!loading && proximasAudiencias.length === 0"
+                 class="agenda-empty">
               <i class="bi bi-calendar-x"></i>
               <p>Sin audiencias próximas</p>
             </div>
+
           </div>
         </section>
 
@@ -125,14 +224,18 @@
       <section class="quick-actions">
         <p class="quick-label">Acciones rápidas</p>
         <div class="quick-grid">
-          <a class="quick-btn" routerLink="/abogado/expedientes">
-            <i class="bi bi-folder2-open"></i><span>Ver Expedientes</span>
+          <a class="quick-btn"
+             routerLink="/abogado/expedientes/">
+            <i class="bi bi-folder2-open"></i>
+            <span>Ver Expedientes</span>
           </a>
           <a class="quick-btn" routerLink="/abogado/audiencias">
-            <i class="bi bi-calendar-event"></i><span>Ver Audiencias</span>
+            <i class="bi bi-calendar-event"></i>
+            <span>Ver Audiencias</span>
           </a>
           <a class="quick-btn" routerLink="/abogado/notificaciones">
-            <i class="bi bi-bell"></i><span>Notificaciones</span>
+            <i class="bi bi-bell"></i>
+            <span>Notificaciones</span>
           </a>
         </div>
       </section>

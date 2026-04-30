@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ExpedienteService } from '../../services/expediente.service'; // Asegúrate de la ruta correcta
-import { Expediente } from '../abogado/expedientes/expediente.model';
+import { Expediente } from './expedientes/expediente.model';
 
 @Component({
   selector: 'app-dashboard',

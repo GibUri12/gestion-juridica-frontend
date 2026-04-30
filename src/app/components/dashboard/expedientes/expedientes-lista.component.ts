@@ -7,7 +7,7 @@ import { Expediente } from './expediente.model';
 import Swal from 'sweetalert2';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { AuthService } from '../../../services/auth.service';
-import { AudienciaService, Audiencia } from '../../dashboard/audiencias/audiencia.service';
+import { AudienciaService, Audiencia } from '../audiencias/audiencia.service';
 
 
 @Component({

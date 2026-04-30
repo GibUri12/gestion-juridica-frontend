@@ -27,5 +27,6 @@ export interface Expediente {
     username: string;
     nombreCompleto?: string;
   };
+    createdAt?: string;
   
 }
