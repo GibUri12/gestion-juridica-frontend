@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+
+
 
 export interface Cliente {
   id?:             number;
@@ -16,7 +19,7 @@ export interface Cliente {
 @Injectable({ providedIn: 'root' })
 export class ClienteService {
 
-  private readonly API = 'http://localhost:8080/api/clientes';
+  private readonly API = `${environment.apiUrl}/api/clientes`;
 
   constructor(private http: HttpClient) {}
 

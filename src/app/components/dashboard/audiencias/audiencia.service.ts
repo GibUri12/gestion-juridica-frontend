@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+
+
 
 export interface Audiencia {
   id?:                       number;
@@ -59,11 +62,11 @@ export interface Tribunal {
 @Injectable({ providedIn: 'root' })
 export class AudienciaService {
 
-  private readonly API       = 'http://localhost:8080/api/audiencias';
-  private readonly API_TIPOS = 'http://localhost:8080/api/tipos-audiencia';
-  private readonly API_USERS = 'http://localhost:8080/api/usuarios';
-  private readonly API_EXP   = 'http://localhost:8080/api/expedientes';
-  private readonly API_TRIBUNALES   = 'http://localhost:8080/api/catalogos/tribunales';
+  private readonly API       = `${environment.apiUrl}/api/audiencias`;
+  private readonly API_TIPOS = `${environment.apiUrl}/api/tipos-audiencia`;
+  private readonly API_USERS = `${environment.apiUrl}/api/usuarios`;
+  private readonly API_EXP   = `${environment.apiUrl}/api/expedientes`;
+  private readonly API_TRIBUNALES   = `${environment.apiUrl}/api/catalogos/tribunales`;
 
   constructor(private http: HttpClient) {}
 

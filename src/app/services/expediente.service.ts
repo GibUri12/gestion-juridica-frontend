@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Expediente } from '../components/dashboard/expedientes/expediente.model'; 
+import { Expediente } from '../components/dashboard/expedientes/expediente.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ExpedienteService {
-  // Usamos la misma base que tu AuthService
-  private apiUrl = 'http://localhost:8080/api/expedientes';
-  private cattribunal = 'http://localhost:8080/api/catalogos/tribunales';
+
+  private apiUrl    = `${environment.apiUrl}/api/expedientes`;
+  private apiBase   = `${environment.apiUrl}/api`;  // ← base general
 
   constructor(private http: HttpClient) {}
 
@@ -15,12 +16,10 @@ export class ExpedienteService {
     return this.http.get<Expediente[]>(this.apiUrl);
   }
 
-  // PASO 2: Completar información (Abogado/Admin)
   completar(id: number, datos: Partial<Expediente>): Observable<Expediente> {
     return this.http.put<Expediente>(`${this.apiUrl}/${id}/completar`, datos);
   }
 
-  // Para los Autocompletes de Empresas y Clientes
   buscarEmpresas(term: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/autocomplete-empresa?term=${term}`);
   }
@@ -28,7 +27,7 @@ export class ExpedienteService {
   buscarClientes(term: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/autocomplete-cliente?term=${term}`);
   }
-  
+
   crear(datos: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/legal`, datos);
   }
@@ -36,33 +35,33 @@ export class ExpedienteService {
   buscarJuntas(termino: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/catalogos/juntas?term=${termino}`);
   }
-  
+
+  // ✅ Corregido: apunta a /api/catalogos/tribunales?q=
   buscarTribunales(termino: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.cattribunal}/catalogos/tribunales?term=${termino}`);
+    return this.http.get<any[]>(`${this.apiBase}/catalogos/tribunales?q=${termino}`);
   }
 
-  getMovimientos(expedienteId: number, page: number = 0, size: number = 20) {
-    return this.http.get(`${this.apiUrl}/${expedienteId}/movimientos?page=${page}&size=${size}`);
+  getMovimientos(expedienteId: number, page = 0, size = 20) {
+    return this.http.get(
+      `${this.apiUrl}/${expedienteId}/movimientos?page=${page}&size=${size}`
+    );
   }
 
-  // Asignar un abogado
   asignarAbogado(expedienteId: number, usuarioId: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/${expedienteId}/abogados/${usuarioId}`, {});
   }
 
-  // Remover un abogado (soft delete)
   removerAbogado(expedienteId: number, usuarioId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${expedienteId}/abogados/${usuarioId}`);
   }
 
-  // Obtener lista de abogados asignados a un expediente
   getAbogadosAsignados(expedienteId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${expedienteId}/abogados`);
   }
 
-  // Cambiamos el método anterior por este
+  // ✅ Corregido: apunta a /api/usuarios/abogados
   getAbogadosDisponibles(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:8080/api/usuarios/abogados`);
+    return this.http.get<any[]>(`${this.apiBase}/usuarios/abogados`);
   }
 
   actualizarPostAudiencia(id: number, payload: {
@@ -72,5 +71,4 @@ export class ExpedienteService {
   }): Observable<Expediente> {
     return this.http.patch<Expediente>(`${this.apiUrl}/${id}/post-audiencia`, payload);
   }
-
 }

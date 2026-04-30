@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Movimiento, PageResponse } from '../components/abogado/expedientes/movimiento.model';
+import { environment } from '../../environments/environment';
+
 
 @Injectable({ providedIn: 'root' })
 export class MovimientoService {
 
-  private api = 'http://localhost:8080/api/expedientes';
+  private api = `${environment.apiUrl}/api/expedientes`;
 
   constructor(private http: HttpClient) {}
 
