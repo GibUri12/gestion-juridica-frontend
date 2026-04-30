@@ -6,5 +6,5 @@ export const environment = {
   //apiUrl: 'http://localhost:8080'
 
   production: true,
-  apiUrl: 'gestion-juridica-backend-production.up.railway.app' 
+  apiUrl: 'https://gestion-juridica-backend-production.up.railway.app' 
 };
