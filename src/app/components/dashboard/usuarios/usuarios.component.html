@@ -1,10 +1,8 @@
-<!-- usuarios.component.html -->
 <div class="app-shell">
   <app-sidebar></app-sidebar>
 
   <main class="main-content">
 
-    <!-- Topbar -->
     <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
@@ -25,105 +23,130 @@
 
     <div class="page-body">
 
-      <!-- Toast de éxito -->
+      <!-- Toast -->
       <div class="toast-siga" *ngIf="successMsg">
         <i class="bi bi-check-circle-fill"></i> {{ successMsg }}
       </div>
 
-      <!-- Filtros -->
-      <section class="filter-bar">
-        <div class="filter-search">
-          <i class="bi bi-search"></i>
+      <!-- Toolbar: filtros + botón nuevo -->
+      <div class="list-toolbar">
+        <div class="search-wrap">
+          <i class="bi bi-search search-icon"></i>
           <input
+            class="search-input"
             type="text"
             placeholder="Buscar por nombre, usuario o email..."
             [(ngModel)]="filtroTexto"
             (input)="aplicarFiltros()">
+          <button class="search-clear"
+                  *ngIf="filtroTexto"
+                  (click)="filtroTexto = ''; aplicarFiltros()">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
 
-        <select [(ngModel)]="filtroRol" (change)="aplicarFiltros()">
-          <option value="">Todos los roles</option>
-          <option *ngFor="let r of roles" [value]="r">{{ rolLabel(r) }}</option>
-        </select>
+        <div class="toolbar-right">
+          <select class="search-input" style="max-width:150px"
+                  [(ngModel)]="filtroRol"
+                  (change)="aplicarFiltros()">
+            <option value="">Todos los roles</option>
+            <option *ngFor="let r of roles" [value]="r">{{ rolLabel(r) }}</option>
+          </select>
 
-        <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
-          <option value="">Todos los estados</option>
-          <option value="activo">Activos</option>
-          <option value="inactivo">Inactivos</option>
-        </select>
+          <select class="search-input" style="max-width:150px"
+                  [(ngModel)]="filtroEstado"
+                  (change)="aplicarFiltros()">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
 
-        <button class="btn-clear" (click)="limpiarFiltros()" title="Limpiar filtros">
-          <i class="bi bi-x-circle"></i>
-        </button>
-      </section>
-      
-      <button class="btn-primary" (click)="abrirModalCrear()">
-        <i class="bi bi-person-plus"></i>
-        <span>Nuevo Usuario</span>
-      </button>
+          <button class="btn-primary" (click)="abrirModalCrear()">
+            <i class="bi bi-person-plus"></i>
+            <span class="hide-mobile">Nuevo Usuario</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Tabla -->
       <section class="panel">
         <div class="table-wrap">
 
           <div *ngIf="loading" class="empty-state">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="spinner"></div>
             <p>Cargando usuarios...</p>
           </div>
 
-          <table class="data-table" *ngIf="!loading && usuariosFiltrados.length > 0">
+          <table class="data-table"
+                 *ngIf="!loading && usuariosFiltrados.length > 0">
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Username</th>
-                <th>Email</th>
+                <th class="hide-mobile">Username</th>
+                <th class="hide-mobile">Email</th>
                 <th>Rol</th>
-                <th>Clave</th>
+                <th class="hide-mobile">Clave</th>
                 <th>Estado</th>
-                <th>Desde</th>
-                <th>Acciones</th>
+                <th class="hide-mobile">Desde</th>
+                <th class="th-actions">Acciones</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let u of usuariosFiltrados">
                 <td>
                   <div class="user-cell">
-                    <div class="user-avatar-sm">{{ u.nombreCompleto.charAt(0).toUpperCase() }}</div>
-                    <span>{{ u.nombreCompleto }}</span>
+                    <div class="user-avatar-sm">
+                      {{ u.nombreCompleto.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="user-cell-info">
+                      <span class="td-nombre">{{ u.nombreCompleto }}</span>
+                      <span class="td-muted small show-mobile">{{ u.username }}</span>
+                    </div>
                   </div>
                 </td>
-                <td><code>{{ u.username }}</code></td>
-                <td>{{ u.email }}</td>
+                <td class="hide-mobile"><code>{{ u.username }}</code></td>
+                <td class="hide-mobile td-muted">{{ u.email }}</td>
                 <td>
                   <span class="rol-badge rol-{{ u.rol.toLowerCase() }}">
                     {{ rolLabel(u.rol) }}
                   </span>
                 </td>
-                <td>
-                  <span *ngIf="u.claveAbogado" class="badge-expediente">{{ u.claveAbogado }}</span>
-                  <span *ngIf="!u.claveAbogado" class="text-muted-soft">—</span>
+                <td class="hide-mobile">
+                  <span *ngIf="u.claveAbogado" class="badge-expediente">
+                    {{ u.claveAbogado }}
+                  </span>
+                  <span *ngIf="!u.claveAbogado" class="td-muted">—</span>
                 </td>
                 <td>
-                  <span class="estado-badge" [class.estado-activo]="u.activo" [class.estado-inactivo]="!u.activo">
+                  <span class="estado-badge"
+                        [class.estado-activo]="u.activo"
+                        [class.estado-inactivo]="!u.activo">
                     {{ u.activo ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
-                <td>{{ u.createdAt | date:'dd/MM/yyyy' }}</td>
+                <td class="hide-mobile td-muted">
+                  {{ u.createdAt | date:'dd/MM/yyyy' }}
+                </td>
                 <td class="td-actions">
                   <div class="action-group">
-                    <button class="action-btn action-edit" (click)="abrirModalEditar(u)" title="Editar">
+                    <button class="action-btn action-edit"
+                            (click)="abrirModalEditar(u)"
+                            title="Editar">
                       <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button class="action-btn action-password" (click)="abrirModalPassword(u)" title="Cambiar contraseña">
+                    <button class="action-btn action-password"
+                            (click)="abrirModalPassword(u)"
+                            title="Cambiar contraseña">
                       <i class="bi bi-key"></i>
                     </button>
-                    <button
-                      class="action-btn"
-                      [class.action-deactivate]="u.activo"
-                      [class.action-activate]="!u.activo"
-                      (click)="toggleActivo(u)"
-                      [title]="u.activo ? 'Desactivar' : 'Activar'">
-                      <i class="bi" [class.bi-toggle-on]="u.activo" [class.bi-toggle-off]="!u.activo"></i>
+                    <button class="action-btn"
+                            [class.action-deactivate]="u.activo"
+                            [class.action-activate]="!u.activo"
+                            (click)="toggleActivo(u)"
+                            [title]="u.activo ? 'Desactivar' : 'Activar'">
+                      <i class="bi"
+                         [class.bi-toggle-on]="u.activo"
+                         [class.bi-toggle-off]="!u.activo"></i>
                     </button>
                   </div>
                 </td>
@@ -131,13 +154,20 @@
             </tbody>
           </table>
 
-          <div *ngIf="!loading && usuariosFiltrados.length === 0" class="empty-state">
+          <div class="table-footer"
+               *ngIf="!loading && usuariosFiltrados.length > 0">
+            {{ usuariosFiltrados.length }} usuario(s) encontrado(s)
+          </div>
+
+          <div *ngIf="!loading && usuariosFiltrados.length === 0"
+               class="empty-state">
             <i class="bi bi-people"></i>
             <p>No se encontraron usuarios</p>
           </div>
 
         </div>
       </section>
+
     </div>
   </main>
 </div>

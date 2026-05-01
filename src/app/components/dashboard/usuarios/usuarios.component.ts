@@ -23,6 +23,9 @@ export class UsuariosComponent implements OnInit {
   filtroEstado: string = '';
   filtroTexto: string = '';
 
+  userName: string | null = '';  // ← agrega esta
+  today = new Date();  
+
   // ── Modales ──────────────────────────────────────
   modalFormVisible = false;
   modalPasswordVisible = false;
@@ -42,6 +45,7 @@ export class UsuariosComponent implements OnInit {
   constructor(private usuarioService: UsuarioService) {}
 
   ngOnInit() {
+    this.userName = localStorage.getItem('username');
     this.cargarUsuarios();
   }
 
