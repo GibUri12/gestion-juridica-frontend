@@ -5,15 +5,21 @@
   <main class="main-content">
 
     <!-- Topbar -->
+    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
         <p class="topbar-eyebrow">Administración</p>
         <h1 class="topbar-title">Gestión de Usuarios</h1>
       </div>
       <div class="topbar-right">
-        <button class="btn-primary-siga" (click)="abrirModalCrear()">
-          <i class="bi bi-person-plus"></i> Nuevo Usuario
-        </button>
+        <div class="topbar-date hide-mobile">
+          <i class="bi bi-calendar3"></i>
+          <span>{{ today | date:'EEE, d MMM yyyy' : '' : 'es' }}</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userName?.charAt(0)?.toUpperCase() }}</div>
+          <span class="topbar-username hide-mobile">{{ userName }}</span>
+        </div>
       </div>
     </header>
 
@@ -50,6 +56,11 @@
           <i class="bi bi-x-circle"></i>
         </button>
       </section>
+      
+      <button class="btn-primary" (click)="abrirModalCrear()">
+        <i class="bi bi-person-plus"></i>
+        <span>Nuevo Usuario</span>
+      </button>
 
       <!-- Tabla -->
       <section class="panel">
